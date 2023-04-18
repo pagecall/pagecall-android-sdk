@@ -41,18 +41,54 @@ dependencies {
     implementation 'io.github.haiyangwu:mediasoup-client:3.4.0'
 }
 
+ext {
+    GITHUB_USER = "pagecall"
+    GITHUB_REPO = "pagecall-android-sdk"
+    GITHUB_PKG_NAME = "pagecall-android-sdk"
+    GITHUB_PKG_VERSION = "0.0.1"
+}
+
 publishing {
     publications {
         release(MavenPublication) {
             groupId 'com.pagecall'
-            artifactId 'pagecall-sdk'
-            version '0.0.1'
+            artifactId GITHUB_PKG_NAME
+            version GITHUB_PKG_VERSION
             artifact("$buildDir/outputs/aar/pagecall-release.aar")
+
+            pom {
+                name = GITHUB_PKG_NAME
+                description = 'lightweight Android SDK for embedding Pagecall webapp with seamless audio support.'
+                url = "https://github.com/$GITHUB_USER/$GITHUB_REPO"
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = GITHUB_USER
+                        name = 'parkjurung'
+                        email = 'ryan@pagecall.com'
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
+                    developerConnection = "scm:git:ssh://github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
+                    url = "https://github.com/$GITHUB_USER/$GITHUB_REPO/tree/main"
+                }
+            }
         }
     }
     repositories {
         maven {
-            url "$buildDir/outputs/repo"
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/$GITHUB_USER/$GITHUB_REPO")
+            credentials {
+                username = GITHUB_USER
+                password = System.getenv("GITHUB_TOKEN") 
+            }
         }
     }
 }

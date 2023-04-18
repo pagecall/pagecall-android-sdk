@@ -14,14 +14,14 @@ This SDK provides an easy-to-integrate solution for embedding the Pagecall webap
 allprojects {
     repositories {
         ...
-        maven { url 'https://a.b' }
+        maven { url 'https://maven.pkg.github.com/pagecall/pagecall-android-sdk' }
     }
 }
 ```
 2. Add the dependency to your app's build.gradle file:
 ```gradle
 dependencies {
-    implementation 'com.github.pagecall:pagecall-android-sdk:0.0.1'
+    implementation 'com.pagecall:pagecall-android-sdk:0.0.1'
 }
 ```
 3. Sync your project with the Gradle files.
