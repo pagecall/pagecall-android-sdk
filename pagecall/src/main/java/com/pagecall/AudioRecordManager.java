@@ -102,10 +102,10 @@ class AudioRecordManager {
      * @param context Android Context
      * @param emitter
      */
-    static void startEmitDecibelSchedule(@NonNull Context context, @NonNull WebViewEmitter emitter) {
+    static void startEmitVolumeSchedule(@NonNull Context context, @NonNull WebViewEmitter emitter) {
         if (volumeEmitter == null) volumeEmitter = Executors.newSingleThreadScheduledExecutor();
         volumeEmitter.scheduleAtFixedRate(
-                () -> emitter.emit(NativeBridgeEvent.AUDIO_VOLUME, Double.toString(getMicrophoneDecibel(context))),
+                () -> emitter.emit(NativeBridgeEvent.AUDIO_VOLUME, Double.toString(getMicrophoneVolume(context))),
                 0,
                 500,
                 TimeUnit.MILLISECONDS
