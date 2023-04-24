@@ -94,7 +94,8 @@ class AudioRecordManager {
 
         double a = (DECIBEL_IDLE - DECIBEL_MAX) / Math.log10(AMPLITUDE_IDLE / AMPLITUDE_MAX);
         double b = DECIBEL_MAX - a * Math.log10(AMPLITUDE_MAX);
-        return a * Math.log10(amplitude) + b;
+        double decibel = a * Math.log10(amplitude) + b;
+        return decibel == Double.NEGATIVE_INFINITY ? -100 : decibel;
     }
 
     /**

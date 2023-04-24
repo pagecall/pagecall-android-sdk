@@ -19,6 +19,19 @@ function registerGlobals() {
     );
   };
 
+  let trialCount = 0;
+  const interval = setInterval(() => {
+    trialCount ++;
+    if (trialCount > 60) {
+      console.error("PagecallUI not found");
+      clearInterval(interval);
+    }
+    if ((window as any)["PagecallUI"]) {
+      postMessage({ action: "loaded" })
+      clearInterval(interval);
+    }
+  }, 1000);
+
   const pagecallNativePrivate = {
     emit: (eventName: string, payload?: string, eventId?: string) => {
       const parsedPayload = payload ? JSON.parse(payload) : undefined;
