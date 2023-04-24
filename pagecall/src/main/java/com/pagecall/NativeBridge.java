@@ -16,6 +16,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -26,7 +29,19 @@ class NativeBridge {
     private Context context;
     private WebViewEmitter emitter;
 
+    private HashMap<String, Consumer<String>> subscribers;
+
     private Boolean isAudioPaused = false;
+
+    public Boolean loaded = false;
+    private ArrayList<Consumer<Boolean>> loadConsumers = new ArrayList<Consumer<Boolean>>();
+    public void listenLoaded(Consumer<Boolean> listener) {
+        if (loaded) {
+            listener.accept(true);
+            return;
+        }
+        this.loadConsumers.add(listener);
+    }
 
     private void setIsAudioPaused(Boolean value) {
         this.isAudioPaused = value;
@@ -130,10 +145,11 @@ class NativeBridge {
         return null;
     }
 
-    public NativeBridge(PagecallWebView webView) {
+    public NativeBridge(PagecallWebView webView, HashMap<String, Consumer<String>> subscribers) {
         this.pagecallWebView = webView;
         this.context = webView.getContext();
         this.emitter = new WebViewEmitter(this.pagecallWebView);
+        this.subscribers = subscribers;
     }
 
     private JSONObject safeParseJSON(String json) {
@@ -152,11 +168,26 @@ class NativeBridge {
     @JavascriptInterface
     public void postMessage(String message) {
         JSONObject jsonObject = safeParseJSON(message);
-        if (jsonObject == null) return;
 
         String action = jsonObject.optString("action", "");
         String requestId = jsonObject.optString("requestId", "");
         String payload = jsonObject.optString("payload", "{}");
+        String postType = jsonObject.optString("type", "");
+
+
+        JSONObject payloadData = safeParseJSON(payload);
+
+        if (postType.equals("subscription")) {
+            String id = payloadData.optString("id");
+            String value = payloadData.optString("value");
+
+            Consumer<String> subscriber = subscribers.get(id);
+
+            if (subscriber != null) {
+                subscriber.accept(value);
+            }
+        }
+
         if (action.isEmpty()) return;
 
         NativeBridgeAction bridgeAction = NativeBridgeAction.fromString(action);
@@ -193,10 +224,15 @@ class NativeBridge {
             respond.accept(error, null);
         };
 
-        JSONObject payloadData = safeParseJSON(payload);
-
         try {
             switch (bridgeAction) {
+                case LOADED:
+                    this.loaded = true;
+                    this.loadConsumers.forEach(consumer -> {
+                        consumer.accept(true);
+                        loadConsumers.clear();
+                    });
+                    return;
                 case INITIALIZE:
                     if (mediaController != null) {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);

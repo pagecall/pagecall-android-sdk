@@ -3,6 +3,7 @@ package com.pagecall;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -11,11 +12,16 @@ import android.webkit.WebViewClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
     private final static String defaultPagecallUrl = "app.pagecall";
     private final static String jsInterfaceName = "pagecallAndroidBridge";
+    private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
 
     private String pagecallUrl = null;
     private NativeBridge nativeBridge = null;
@@ -38,7 +44,7 @@ public class PagecallWebView extends WebView {
         String userAgent = this.getSettings().getUserAgentString();
         this.getSettings().setUserAgentString(userAgent + " Pagecall");
 
-        if (nativeBridge == null) nativeBridge = new NativeBridge(this);
+        if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
         this.setWebViewClient(new WebViewClient() {
@@ -54,6 +60,63 @@ public class PagecallWebView extends WebView {
             public void onPermissionRequest(final PermissionRequest request) {
                 request.grant(request.getResources());
             }
+        });
+    }
+
+    private void evaluateJavascriptWithLog(String script) {
+        String finalScript = "(function userScript(){"+ script + "})()";
+        this.post(() -> this.evaluateJavascript(finalScript, value -> {
+            // todo: handle result
+        }));
+    }
+    public void sendMessage(String message) {
+        String script = MessageFormat.format(
+                "if (!window.Pagecall) return false; window.Pagecall.sendMessage(\"{0}\"); return true;"
+                , message
+        );
+        this.evaluateJavascriptWithLog(script);
+    }
+
+    private final String subscriptionsStorageName = "__pagecallNativeSubscriptions";
+
+    private Runnable subscribe(String target, Consumer<String> subscriber) {
+        String id = UUID.randomUUID().toString();
+        subscribers.put(id, subscriber);
+        String returningScript = String.format(
+                "const callback = (value) => {" +
+                "  window.%s.postMessage(JSON.stringify({" +
+                "    type: \"subscription\"," +
+                "    payload: {" +
+                "      id: \"%s\"," +
+                "      value" +
+                "    }" +
+                "  }));" +
+                "};" +
+                "const subscription = %s.subscribe(callback);" +
+                "if (!window[\"%s\"]) window[\"%s\"] = {};" +
+                "window[\"%s\"][\"%s\"] = subscription;",
+                jsInterfaceName, id, target, subscriptionsStorageName, subscriptionsStorageName, subscriptionsStorageName, id);
+        evaluateJavascriptWithLog(returningScript);
+
+        return () -> {
+            String script = String.format("window[\"%s\"][\"%s\"].unsubscribe();", subscriptionsStorageName, id);
+            evaluateJavascriptWithLog(script);
+            subscribers.remove(id);
+        };
+    }
+
+    public void listenMessage(Consumer<String> subscriber) {
+        if (nativeBridge == null) return;
+
+        nativeBridge.listenLoaded(loaded -> {
+            if (!loaded) return;
+            subscribe("PagecallUI.customMessage$", payload -> {
+                if (payload != null) {
+                    subscriber.accept(payload);
+                } else {
+                    // todo: handle exception
+                }
+            });
         });
     }
 

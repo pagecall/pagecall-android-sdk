@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 (function (Buffer){(function (){
-"use strict";var e=require("crypto");function t(e,t,n,s){return new(n||(n=Promise))((function(r,o){function i(e){try{c(s.next(e))}catch(e){o(e)}}function l(e){try{c(s.throw(e))}catch(e){o(e)}}function c(e){var t;e.done?r(e.value):(t=e.value,t instanceof n?t:new n((function(e){e(t)}))).then(i,l)}c((s=s.apply(e,t||[])).next())}))}class n{constructor(){this.listenersByEvent={}}addListener(e,t){var n;this.listenersByEvent[e]||(this.listenersByEvent[e]=new Set),null===(n=this.listenersByEvent[e])||void 0===n||n.add(t)}removeListener(e,t){const n=this.listenersByEvent[e];n&&n.delete(t)}emit(e,n,s){const r=this.listenersByEvent[e];r&&r.forEach((e=>t(this,void 0,void 0,(function*(){try{const t=yield e(n);null==s||s(null,null!=t?t:void 0)}catch(e){null==s||s(e.message)}}))))}}let s,r,o=t=>((t=>{!s||s.length<t?(s=Buffer.allocUnsafe(128*t),e.randomFillSync(s),r=0):r+t>s.length&&(e.randomFillSync(s),r=0),r+=t})(t-=0),s.subarray(r-t,r));const i=((e,t=21)=>((e,t,n)=>{let s=(2<<31-Math.clz32(e.length-1|1))-1,r=Math.ceil(1.6*s*t/e.length);return(o=t)=>{let i="";for(;;){let t=n(r),l=r;for(;l--;)if(i+=e[t[l]&s]||"",i.length===o)return i}}})(e,t,o))("0123456789abcdefghijklmnopqrstuvwxyz",10);class l{constructor(){this.callbacks={}}request(e,t){const n=i();return this.callbacks[n]={resolve:e,reject:t},n}response(e,t){const n=this.callbacks[e];n&&(n.resolve(t),delete this.callbacks[e])}throw(e,t=""){const n=this.callbacks[e];n&&(n.reject(Error(t)),delete this.callbacks[e])}}!function(){const e=new l,t=new n,s=(t,n)=>{const{action:s,payload:r}=t,o=n?e.request(n.resolve,n.reject):void 0;window.pagecallAndroidBridge.postMessage(JSON.stringify({action:s,payload:r,requestId:o}))},r={emit:(e,n,r)=>{const o=n?JSON.parse(n):void 0;if(r){const n=(e,t)=>s({action:"response",payload:JSON.stringify({eventId:r,error:e,result:t})});t.emit(e,o,n)}else t.emit(e,o)},response:(t,n)=>{const s=n?JSON.parse(n):void 0;e.response(t,s)},throw:(t,n)=>{e.throw(t,n)}},o={getPlatform:()=>"ios",useNativeMediaStore:()=>!0,version:1,addListener(e,n){t.addListener(e,n)},removeListener(e,n){t.removeListener(e,n)}},i=new Proxy(Object.assign(Object.assign({},r),o),{get(e,t){const n=e[t];if(n)return n;if("symbol"==typeof t)throw new Error("Invalid access");return e=>new Promise(((n,r)=>{s({action:t,payload:JSON.stringify(e)},{resolve:n,reject:r})}))}});window.PagecallNative=i}();
+"use strict";var e=require("crypto");function t(e,t,n,s){return new(n||(n=Promise))((function(r,o){function l(e){try{a(s.next(e))}catch(e){o(e)}}function i(e){try{a(s.throw(e))}catch(e){o(e)}}function a(e){var t;e.done?r(e.value):(t=e.value,t instanceof n?t:new n((function(e){e(t)}))).then(l,i)}a((s=s.apply(e,t||[])).next())}))}class n{constructor(){this.listenersByEvent={}}addListener(e,t){var n;this.listenersByEvent[e]||(this.listenersByEvent[e]=new Set),null===(n=this.listenersByEvent[e])||void 0===n||n.add(t)}removeListener(e,t){const n=this.listenersByEvent[e];n&&n.delete(t)}emit(e,n,s){const r=this.listenersByEvent[e];r&&r.forEach((e=>t(this,void 0,void 0,(function*(){try{const t=yield e(n);null==s||s(null,null!=t?t:void 0)}catch(e){null==s||s(e.message)}}))))}}let s,r,o=t=>((t=>{!s||s.length<t?(s=Buffer.allocUnsafe(128*t),e.randomFillSync(s),r=0):r+t>s.length&&(e.randomFillSync(s),r=0),r+=t})(t-=0),s.subarray(r-t,r));const l=((e,t=21)=>((e,t,n)=>{let s=(2<<31-Math.clz32(e.length-1|1))-1,r=Math.ceil(1.6*s*t/e.length);return(o=t)=>{let l="";for(;;){let t=n(r),i=r;for(;i--;)if(l+=e[t[i]&s]||"",l.length===o)return l}}})(e,t,o))("0123456789abcdefghijklmnopqrstuvwxyz",10);class i{constructor(){this.callbacks={}}request(e,t){const n=l();return this.callbacks[n]={resolve:e,reject:t},n}response(e,t){const n=this.callbacks[e];n&&(n.resolve(t),delete this.callbacks[e])}throw(e,t=""){const n=this.callbacks[e];n&&(n.reject(Error(t)),delete this.callbacks[e])}}!function(){const e=new i,t=new n,s=(t,n)=>{const{action:s,payload:r}=t,o=n?e.request(n.resolve,n.reject):void 0;window.pagecallAndroidBridge.postMessage(JSON.stringify({action:s,payload:r,requestId:o}))};let r=0;const o=setInterval((()=>{r++,r>60&&(console.error("PagecallUI not found"),clearInterval(o)),window.PagecallUI&&(s({action:"loaded"}),clearInterval(o))}),1e3),l={emit:(e,n,r)=>{const o=n?JSON.parse(n):void 0;if(r){const n=(e,t)=>s({action:"response",payload:JSON.stringify({eventId:r,error:e,result:t})});t.emit(e,o,n)}else t.emit(e,o)},response:(t,n)=>{const s=n?JSON.parse(n):void 0;e.response(t,s)},throw:(t,n)=>{e.throw(t,n)}},a={getPlatform:()=>"ios",useNativeMediaStore:()=>!0,version:1,addListener(e,n){t.addListener(e,n)},removeListener(e,n){t.removeListener(e,n)}},c=new Proxy(Object.assign(Object.assign({},l),a),{get(e,t){const n=e[t];if(n)return n;if("symbol"==typeof t)throw new Error("Invalid access");return e=>new Promise(((n,r)=>{s({action:t,payload:JSON.stringify(e)},{resolve:n,reject:r})}))}});window.PagecallNative=c}();
 
 
 }).call(this)}).call(this,require("buffer").Buffer)
@@ -11,17 +11,17 @@ const asn1 = exports;
 
 asn1.bignum = require('bn.js');
 
-asn1.define = require('asn1.js/lib/asn1/api').define;
-asn1.base = require('asn1.js/lib/asn1/base');
-asn1.constants = require('asn1.js/lib/asn1/constants');
-asn1.decoders = require('asn1.js/lib/asn1/decoders');
-asn1.encoders = require('asn1.js/lib/asn1/encoders');
+asn1.define = require('./asn1/api').define;
+asn1.base = require('./asn1/base');
+asn1.constants = require('./asn1/constants');
+asn1.decoders = require('./asn1/decoders');
+asn1.encoders = require('./asn1/encoders');
 
-},{"asn1.js/lib/asn1/api":3,"asn1.js/lib/asn1/base":5,"asn1.js/lib/asn1/constants":9,"asn1.js/lib/asn1/decoders":11,"asn1.js/lib/asn1/encoders":14,"bn.js":17}],3:[function(require,module,exports){
+},{"./asn1/api":3,"./asn1/base":5,"./asn1/constants":9,"./asn1/decoders":11,"./asn1/encoders":14,"bn.js":17}],3:[function(require,module,exports){
 'use strict';
 
-const encoders = require('asn1.js/lib/asn1/encoders');
-const decoders = require('asn1.js/lib/asn1/decoders');
+const encoders = require('./encoders');
+const decoders = require('./decoders');
 const inherits = require('inherits');
 
 const api = exports;
@@ -76,7 +76,7 @@ Entity.prototype.encode = function encode(data, enc, /* internal */ reporter) {
   return this._getEncoder(enc).encode(data, reporter);
 };
 
-},{"asn1.js/lib/asn1/decoders":11,"asn1.js/lib/asn1/encoders":14,"inherits":131}],4:[function(require,module,exports){
+},{"./decoders":11,"./encoders":14,"inherits":131}],4:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -236,12 +236,12 @@ EncoderBuffer.prototype.join = function join(out, offset) {
 
 const base = exports;
 
-base.Reporter = require('asn1.js/lib/asn1/base/reporter').Reporter;
-base.DecoderBuffer = require('asn1.js/lib/asn1/base/buffer').DecoderBuffer;
-base.EncoderBuffer = require('asn1.js/lib/asn1/base/buffer').EncoderBuffer;
-base.Node = require('asn1.js/lib/asn1/base/node');
+base.Reporter = require('./reporter').Reporter;
+base.DecoderBuffer = require('./buffer').DecoderBuffer;
+base.EncoderBuffer = require('./buffer').EncoderBuffer;
+base.Node = require('./node');
 
-},{"asn1.js/lib/asn1/base/buffer":4,"asn1.js/lib/asn1/base/node":6,"asn1.js/lib/asn1/base/reporter":7}],6:[function(require,module,exports){
+},{"./buffer":4,"./node":6,"./reporter":7}],6:[function(require,module,exports){
 'use strict';
 
 const Reporter = require('../base/reporter').Reporter;
@@ -1087,9 +1087,9 @@ constants._reverse = function reverse(map) {
   return res;
 };
 
-constants.der = require('asn1.js/lib/asn1/constants/der');
+constants.der = require('./der');
 
-},{"asn1.js/lib/asn1/constants/der":8}],10:[function(require,module,exports){
+},{"./der":8}],10:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -1431,10 +1431,10 @@ function derDecodeLen(buf, primitive, fail) {
 
 const decoders = exports;
 
-decoders.der = require('asn1.js/lib/asn1/decoders/der');
-decoders.pem = require('asn1.js/lib/asn1/decoders/pem');
+decoders.der = require('./der');
+decoders.pem = require('./pem');
 
-},{"asn1.js/lib/asn1/decoders/der":10,"asn1.js/lib/asn1/decoders/pem":12}],12:[function(require,module,exports){
+},{"./der":10,"./pem":12}],12:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -1789,10 +1789,10 @@ function encodeTag(tag, primitive, cls, reporter) {
 
 const encoders = exports;
 
-encoders.der = require('asn1.js/lib/asn1/encoders/der');
-encoders.pem = require('asn1.js/lib/asn1/encoders/pem');
+encoders.der = require('./der');
+encoders.pem = require('./pem');
 
-},{"asn1.js/lib/asn1/encoders/der":13,"asn1.js/lib/asn1/encoders/pem":15}],15:[function(require,module,exports){
+},{"./der":13,"./pem":15}],15:[function(require,module,exports){
 'use strict';
 
 const inherits = require('inherits');
@@ -5836,9 +5836,9 @@ StreamCipher.prototype.setAAD = function setAAD (buf) {
 module.exports = StreamCipher
 
 },{"./aes":20,"./ghash":25,"./incr32":26,"buffer-xor":64,"cipher-base":66,"inherits":131,"safe-buffer":157}],22:[function(require,module,exports){
-var ciphers = require('browserify-aes/encrypter')
-var deciphers = require('browserify-aes/decrypter')
-var modes = require('browserify-aes/modes/list.json')
+var ciphers = require('./encrypter')
+var deciphers = require('./decrypter')
+var modes = require('./modes/list.json')
 
 function getCiphers () {
   return Object.keys(modes)
@@ -5850,13 +5850,13 @@ exports.createDecipher = exports.Decipher = deciphers.createDecipher
 exports.createDecipheriv = exports.Decipheriv = deciphers.createDecipheriv
 exports.listCiphers = exports.getCiphers = getCiphers
 
-},{"browserify-aes/decrypter":23,"browserify-aes/encrypter":24,"browserify-aes/modes/list.json":34}],23:[function(require,module,exports){
-var AuthCipher = require('browserify-aes/authCipher')
+},{"./decrypter":23,"./encrypter":24,"./modes/list.json":34}],23:[function(require,module,exports){
+var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
-var MODES = require('browserify-aes/modes')
-var StreamCipher = require('browserify-aes/streamCipher')
+var MODES = require('./modes')
+var StreamCipher = require('./streamCipher')
 var Transform = require('cipher-base')
-var aes = require('browserify-aes/aes')
+var aes = require('./aes')
 var ebtk = require('evp_bytestokey')
 var inherits = require('inherits')
 
@@ -5976,13 +5976,13 @@ function createDecipher (suite, password) {
 exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
-},{"browserify-aes/aes":20,"browserify-aes/authCipher":21,"browserify-aes/modes":33,"browserify-aes/streamCipher":36,"cipher-base":66,"evp_bytestokey":100,"inherits":131,"safe-buffer":157}],24:[function(require,module,exports){
-var MODES = require('browserify-aes/modes')
-var AuthCipher = require('browserify-aes/authCipher')
+},{"./aes":20,"./authCipher":21,"./modes":33,"./streamCipher":36,"cipher-base":66,"evp_bytestokey":100,"inherits":131,"safe-buffer":157}],24:[function(require,module,exports){
+var MODES = require('./modes')
+var AuthCipher = require('./authCipher')
 var Buffer = require('safe-buffer').Buffer
-var StreamCipher = require('browserify-aes/streamCipher')
+var StreamCipher = require('./streamCipher')
 var Transform = require('cipher-base')
-var aes = require('browserify-aes/aes')
+var aes = require('./aes')
 var ebtk = require('evp_bytestokey')
 var inherits = require('inherits')
 
@@ -6092,7 +6092,7 @@ function createCipher (suite, password) {
 exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
-},{"browserify-aes/aes":20,"browserify-aes/authCipher":21,"browserify-aes/modes":33,"browserify-aes/streamCipher":36,"cipher-base":66,"evp_bytestokey":100,"inherits":131,"safe-buffer":157}],25:[function(require,module,exports){
+},{"./aes":20,"./authCipher":21,"./modes":33,"./streamCipher":36,"cipher-base":66,"evp_bytestokey":100,"inherits":131,"safe-buffer":157}],25:[function(require,module,exports){
 var Buffer = require('safe-buffer').Buffer
 var ZEROES = Buffer.alloc(16, 0)
 
@@ -6328,7 +6328,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 },{"safe-buffer":157}],31:[function(require,module,exports){
 var xor = require('buffer-xor')
 var Buffer = require('safe-buffer').Buffer
-var incr32 = require('browserify-aes/incr32')
+var incr32 = require('../incr32')
 
 function getBlock (self) {
   var out = self._cipher.encryptBlockRaw(self._prev)
@@ -6357,7 +6357,7 @@ exports.encrypt = function (self, chunk) {
   return xor(chunk, pad)
 }
 
-},{"browserify-aes/incr32":26,"buffer-xor":64,"safe-buffer":157}],32:[function(require,module,exports){
+},{"../incr32":26,"buffer-xor":64,"safe-buffer":157}],32:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -6368,17 +6368,17 @@ exports.decrypt = function (self, block) {
 
 },{}],33:[function(require,module,exports){
 var modeModules = {
-  ECB: require('browserify-aes/modes/ecb'),
-  CBC: require('browserify-aes/modes/cbc'),
-  CFB: require('browserify-aes/modes/cfb'),
-  CFB8: require('browserify-aes/modes/cfb8'),
-  CFB1: require('browserify-aes/modes/cfb1'),
-  OFB: require('browserify-aes/modes/ofb'),
-  CTR: require('browserify-aes/modes/ctr'),
-  GCM: require('browserify-aes/modes/ctr')
+  ECB: require('./ecb'),
+  CBC: require('./cbc'),
+  CFB: require('./cfb'),
+  CFB8: require('./cfb8'),
+  CFB1: require('./cfb1'),
+  OFB: require('./ofb'),
+  CTR: require('./ctr'),
+  GCM: require('./ctr')
 }
 
-var modes = require('browserify-aes/modes/list.json')
+var modes = require('./list.json')
 
 for (var key in modes) {
   modes[key].module = modeModules[modes[key].mode]
@@ -6386,7 +6386,7 @@ for (var key in modes) {
 
 module.exports = modes
 
-},{"browserify-aes/modes/cbc":27,"browserify-aes/modes/cfb":28,"browserify-aes/modes/cfb1":29,"browserify-aes/modes/cfb8":30,"browserify-aes/modes/ctr":31,"browserify-aes/modes/ecb":32,"browserify-aes/modes/list.json":34,"browserify-aes/modes/ofb":35}],34:[function(require,module,exports){
+},{"./cbc":27,"./cfb":28,"./cfb1":29,"./cfb8":30,"./ctr":31,"./ecb":32,"./list.json":34,"./ofb":35}],34:[function(require,module,exports){
 module.exports={
   "aes-128-ecb": {
     "cipher": "AES",
@@ -10364,9 +10364,9 @@ module.exports = crt
 })(typeof module === 'undefined' || module, this);
 
 },{"buffer":19}],42:[function(require,module,exports){
-module.exports = require('browserify-sign/browser/algorithms.json')
+module.exports = require('./browser/algorithms.json')
 
-},{"browserify-sign/browser/algorithms.json":43}],43:[function(require,module,exports){
+},{"./browser/algorithms.json":43}],43:[function(require,module,exports){
 module.exports={
   "sha224WithRSAEncryption": {
     "sign": "rsa",
@@ -16253,13 +16253,13 @@ exports.constants = {
 },{"browserify-cipher":37,"browserify-sign":45,"browserify-sign/algos":42,"create-ecdh":67,"create-hash":68,"create-hmac":70,"diffie-hellman":79,"pbkdf2":141,"public-encrypt":148,"randombytes":154,"randomfill":155}],73:[function(require,module,exports){
 'use strict';
 
-exports.utils = require('des.js/lib/des/utils');
-exports.Cipher = require('des.js/lib/des/cipher');
-exports.DES = require('des.js/lib/des/des');
-exports.CBC = require('des.js/lib/des/cbc');
-exports.EDE = require('des.js/lib/des/ede');
+exports.utils = require('./des/utils');
+exports.Cipher = require('./des/cipher');
+exports.DES = require('./des/des');
+exports.CBC = require('./des/cbc');
+exports.EDE = require('./des/ede');
 
-},{"des.js/lib/des/cbc":74,"des.js/lib/des/cipher":75,"des.js/lib/des/des":76,"des.js/lib/des/ede":77,"des.js/lib/des/utils":78}],74:[function(require,module,exports){
+},{"./des/cbc":74,"./des/cipher":75,"./des/des":76,"./des/ede":77,"./des/utils":78}],74:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
@@ -16475,8 +16475,8 @@ Cipher.prototype._finalDecrypt = function _finalDecrypt() {
 var assert = require('minimalistic-assert');
 var inherits = require('inherits');
 
-var utils = require('des.js/lib/des/utils');
-var Cipher = require('des.js/lib/des/cipher');
+var utils = require('./utils');
+var Cipher = require('./cipher');
 
 function DESState() {
   this.tmp = new Array(2);
@@ -16613,14 +16613,14 @@ DES.prototype._decrypt = function _decrypt(state, lStart, rStart, out, off) {
   utils.rip(l, r, out, off);
 };
 
-},{"des.js/lib/des/cipher":75,"des.js/lib/des/utils":78,"inherits":131,"minimalistic-assert":134}],77:[function(require,module,exports){
+},{"./cipher":75,"./utils":78,"inherits":131,"minimalistic-assert":134}],77:[function(require,module,exports){
 'use strict';
 
 var assert = require('minimalistic-assert');
 var inherits = require('inherits');
 
-var Cipher = require('des.js/lib/des/cipher');
-var DES = require('des.js/lib/des/des');
+var Cipher = require('./cipher');
+var DES = require('./des');
 
 function EDEState(type, key) {
   assert.equal(key.length, 24, 'Invalid key length');
@@ -16669,7 +16669,7 @@ EDE.prototype._update = function _update(inp, inOff, out, outOff) {
 EDE.prototype._pad = DES.prototype._pad;
 EDE.prototype._unpad = DES.prototype._unpad;
 
-},{"des.js/lib/des/cipher":75,"des.js/lib/des/des":76,"inherits":131,"minimalistic-assert":134}],78:[function(require,module,exports){
+},{"./cipher":75,"./des":76,"inherits":131,"minimalistic-assert":134}],78:[function(require,module,exports){
 'use strict';
 
 exports.readUInt32BE = function readUInt32BE(bytes, off) {
@@ -23732,7 +23732,7 @@ module.exports={"2.16.840.1.101.3.4.1.1": "aes-128-ecb",
 
 var asn1 = require('asn1.js')
 
-exports.certificate = require('parse-asn1/certificate')
+exports.certificate = require('./certificate')
 
 var RSAPrivateKey = asn1.define('RSAPrivateKey', function () {
   this.seq().obj(
@@ -23849,7 +23849,7 @@ exports.signature = asn1.define('signature', function () {
   )
 })
 
-},{"asn1.js":2,"parse-asn1/certificate":138}],138:[function(require,module,exports){
+},{"./certificate":138,"asn1.js":2}],138:[function(require,module,exports){
 // from https://github.com/Rantanen/node-dtls/blob/25a7dc861bda38cfeac93a723500eea4f0ac2e86/Certificate.js
 // thanks to @Rantanen
 
@@ -23974,9 +23974,9 @@ module.exports = function (okey, password) {
 }
 
 },{"browserify-aes":22,"evp_bytestokey":100,"safe-buffer":157}],140:[function(require,module,exports){
-var asn1 = require('parse-asn1/asn1')
-var aesid = require('parse-asn1/aesid.json')
-var fixProc = require('parse-asn1/fixProc')
+var asn1 = require('./asn1')
+var aesid = require('./aesid.json')
+var fixProc = require('./fixProc')
 var ciphers = require('browserify-aes')
 var compat = require('pbkdf2')
 var Buffer = require('safe-buffer').Buffer
@@ -24082,7 +24082,7 @@ function decrypt (data, password) {
   return Buffer.concat(out)
 }
 
-},{"browserify-aes":22,"parse-asn1/aesid.json":136,"parse-asn1/asn1":137,"parse-asn1/fixProc":139,"pbkdf2":141,"safe-buffer":157}],141:[function(require,module,exports){
+},{"./aesid.json":136,"./asn1":137,"./fixProc":139,"browserify-aes":22,"pbkdf2":141,"safe-buffer":157}],141:[function(require,module,exports){
 exports.pbkdf2 = require('./lib/async')
 exports.pbkdf2Sync = require('./lib/sync')
 
@@ -24554,8 +24554,8 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],148:[function(require,module,exports){
-exports.publicEncrypt = require('public-encrypt/publicEncrypt')
-exports.privateDecrypt = require('public-encrypt/privateDecrypt')
+exports.publicEncrypt = require('./publicEncrypt')
+exports.privateDecrypt = require('./privateDecrypt')
 
 exports.privateEncrypt = function privateEncrypt (key, buf) {
   return exports.publicEncrypt(key, buf, true)
@@ -24565,7 +24565,7 @@ exports.publicDecrypt = function publicDecrypt (key, buf) {
   return exports.privateDecrypt(key, buf, true)
 }
 
-},{"public-encrypt/privateDecrypt":150,"public-encrypt/publicEncrypt":151}],149:[function(require,module,exports){
+},{"./privateDecrypt":150,"./publicEncrypt":151}],149:[function(require,module,exports){
 var createHash = require('create-hash')
 var Buffer = require('safe-buffer').Buffer
 

@@ -1,6 +1,7 @@
 package com.pagecall;
 
 enum NativeBridgeAction {
+    LOADED("loaded"), // js loaded (when window.PagecallUI exists)
     INITIALIZE("initialize"),
     DISPOSE("dispose"),
     START("start"),
