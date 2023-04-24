@@ -230,8 +230,8 @@ class NativeBridge {
                     this.loaded = true;
                     this.loadConsumers.forEach(consumer -> {
                         consumer.accept(true);
-                        loadConsumers.clear();
                     });
+                    loadConsumers.clear();
                     return;
                 case INITIALIZE:
                     if (mediaController != null) {
