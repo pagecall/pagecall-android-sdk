@@ -269,7 +269,7 @@ class NativeBridge {
                         });
                         this.synchronizePauseState();
                         // emit decibel after entering
-                        AudioRecordManager.startEmitDecibelSchedule(context, emitter);
+                        AudioRecordManager.startEmitVolumeSchedule(context, emitter);
                     }
                     return;
                 case DISPOSE:
