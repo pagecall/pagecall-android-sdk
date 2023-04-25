@@ -19,24 +19,24 @@ import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
-    private final static String defaultPagecallUrl = "app.pagecall";
+    private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
     private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
 
-    private String pagecallUrl = null;
+    private String[] pagecallUrls = null;
     private NativeBridge nativeBridge = null;
 
-    public PagecallWebView(Context context, String pagecallUrl) {
+    public PagecallWebView(Context context, String[] pagecallUrls) {
         this(context);
-        this.pagecallUrl = pagecallUrl;
+        this.pagecallUrls = pagecallUrls;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     public PagecallWebView(Context context) {
         super(context);
 
-        if (this.pagecallUrl == null) {
-            pagecallUrl = defaultPagecallUrl;
+        if (this.pagecallUrls == null) {
+            pagecallUrls = defaultPagecallUrls;
         }
 
         this.getSettings().setJavaScriptEnabled(true);
@@ -49,7 +49,7 @@ public class PagecallWebView extends WebView {
 
         this.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
-                if (url.contains(pagecallUrl)) {
+                if (isUrlContainsPagecallUrl(url)) {
                     String jsCode = getNativeJS();
                     view.evaluateJavascript(jsCode, null);
                 }
@@ -61,6 +61,14 @@ public class PagecallWebView extends WebView {
                 request.grant(request.getResources());
             }
         });
+    }
+    private boolean isUrlContainsPagecallUrl(String url) {
+        for (String pagecallUrl : pagecallUrls) {
+            if (url.contains(pagecallUrl)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void evaluateJavascriptWithLog(String script) {

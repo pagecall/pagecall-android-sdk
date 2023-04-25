@@ -17,7 +17,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Button toggleButton;
     private Button sendButton;
-    private Button listenButton;
     private PagecallWebView webView;
     private RelativeLayout mainLayout;
     private FrameLayout webViewContainer;
@@ -49,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 isWebViewVisible = false;
             } else {
                 // Create and show the WebView
-                webView = new PagecallWebView(MainActivity.this, "demo.pagecall");
+                webView = new PagecallWebView(MainActivity.this);
                 webView.setLayoutParams(new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
