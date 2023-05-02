@@ -167,7 +167,6 @@ class NativeBridge {
 
     @JavascriptInterface
     public void postMessage(String message) {
-        Log.d("Ryan123", "postMessage: " + message);
         JSONObject jsonObject = safeParseJSON(message);
 
         String action = jsonObject.optString("action", "");
