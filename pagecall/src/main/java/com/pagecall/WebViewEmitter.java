@@ -35,6 +35,12 @@ class WebViewEmitter {
     }
 
     private void rawEmit(String eventName, String message, String eventId) {
+        Log.d(
+                "Ryan123",
+                "[rawEmit] eventName: " + eventName
+                        + ", message: " + message
+                        + ", eventId: " + eventId
+        );
         String[] args = {eventName, message, eventId};
         String[] filteredArgs = Arrays.stream(args).filter(arg ->
                 arg != null
