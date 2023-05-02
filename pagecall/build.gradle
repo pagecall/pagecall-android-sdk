@@ -14,7 +14,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 0
-        versionName "0.0.4"
+        versionName "0.0.5"
     }
 
     buildTypes {
@@ -45,7 +45,7 @@ ext {
     GITHUB_USER = "pagecall"
     GITHUB_REPO = "pagecall-android-sdk"
     GITHUB_PKG_NAME = "pagecall-android-sdk"
-    GITHUB_PKG_VERSION = "0.0.4"
+    GITHUB_PKG_VERSION = "0.0.5"
 }
 
 publishing {
