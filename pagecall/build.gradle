@@ -14,7 +14,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 0
-        versionName "0.0.5"
+        versionName "0.0.12"
     }
 
     buildTypes {
@@ -37,15 +37,15 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation 'com.google.code.gson:gson:2.8.9'
-    implementation 'io.github.haiyangwu:mediasoup-client:3.4.0'
+    api 'com.google.code.gson:gson:2.8.9'
+    api 'io.github.haiyangwu:mediasoup-client:3.4.0'
 }
 
 ext {
     GITHUB_USER = "pagecall"
     GITHUB_REPO = "pagecall-android-sdk"
     GITHUB_PKG_NAME = "pagecall-android-sdk"
-    GITHUB_PKG_VERSION = "0.0.5"
+    GITHUB_PKG_VERSION = "0.0.12"
 }
 
 publishing {
@@ -55,6 +55,36 @@ publishing {
             artifactId GITHUB_PKG_NAME
             version GITHUB_PKG_VERSION
             artifact("$buildDir/outputs/aar/pagecall-release.aar")
+
+            // This block generates a POM file with the included dependencies (both implementation and api)
+            // for the published library. It ensures that users of the library will automatically get the
+            // required dependencies when they add the library to their projects.
+            pom.withXml {
+                Node root = asNode()
+                Node dependenciesNode = root.appendNode('dependencies')
+
+                configurations.implementation.allDependencies.each { dep ->
+                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                        return
+
+                    Node dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dep.group)
+                    dependencyNode.appendNode('artifactId', dep.name)
+                    dependencyNode.appendNode('version', dep.version)
+                    dependencyNode.appendNode('scope', 'compile')
+                }
+
+                configurations.api.allDependencies.each { dep ->
+                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                        return
+
+                    Node dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dep.group)
+                    dependencyNode.appendNode('artifactId', dep.name)
+                    dependencyNode.appendNode('version', dep.version)
+                    dependencyNode.appendNode('scope', 'compile')
+                }
+            }
 
             pom {
                 name = GITHUB_PKG_NAME
