@@ -155,6 +155,7 @@ class WebViewEmitter {
     }
 
     public void response(String requestId, String data) {
+        Log.d("Ryan123", "[response] requestId: " + requestId + ", data: " + data);
         String script = "";
         if (data != null) {
             script = "window.PagecallNative.response('" + requestId + "', '" + data + "')";
@@ -168,6 +169,7 @@ class WebViewEmitter {
     }
 
     public void responseError(String requestId, String errorMessage) {
+        Log.d("Ryan123", "[responseError] requestId: " + requestId + ", errorMessage: " + errorMessage);
         final String script = MessageFormat.format("window.PagecallNative.throw(\"{0}\", \"{1}\")", requestId, errorMessage);
         runScript(script, value -> {
             if (value != null && !value.isEmpty()) {
