@@ -39,6 +39,8 @@ dependencies {
 
     api 'com.google.code.gson:gson:2.8.9'
     api 'io.github.haiyangwu:mediasoup-client:3.4.0'
+    api 'software.aws.chimesdk:amazon-chime-sdk-media:0.17.10'
+    api 'software.aws.chimesdk:amazon-chime-sdk:0.17.10'
 }
 
 ext {

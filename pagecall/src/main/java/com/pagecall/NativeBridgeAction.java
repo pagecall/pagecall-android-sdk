@@ -9,6 +9,7 @@ enum NativeBridgeAction {
     REQUEST_PERMISSION("requestPermission"),
     PAUSE_AUDIO("pauseAudio"),
     RESUME_AUDIO("resumeAudio"),
+    START_SCREEN_SHARE("startScreenShare"),
     GET_AUDIO_DEVICES("getAudioDevices"),
     SET_AUDIO_DEVICE("setAudioDevice"),
     REQUEST_AUDIO_VOLUME("requestAudioVolume"),

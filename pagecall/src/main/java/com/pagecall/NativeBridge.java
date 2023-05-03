@@ -12,6 +12,8 @@ import android.webkit.JavascriptInterface;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionConfiguration;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -239,8 +241,16 @@ class NativeBridge {
                         return;
                     }
 
-                    MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
-                    this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    MeetingSessionConfiguration chimeConfiguration = ChimeController.createChimeConfiguration(payloadData);
+
+                    if (chimeConfiguration == null) {
+                        // use Media Infra
+                        MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
+                        this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    } else {
+                        // use Chime
+                        this.mediaController = new ChimeController(emitter, chimeConfiguration, context);
+                    }
                     this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
@@ -287,6 +297,14 @@ class NativeBridge {
                     respondEmpty.accept(null);
                     return;
 
+                case START_SCREEN_SHARE:
+                    // Only ChimeSDK supports screen share
+                    if (mediaController instanceof ChimeController) {
+                        ChimeController chimeController = (ChimeController) mediaController;
+                        chimeController.startScreenShare();
+                    }
+                    return;
+
                 case RESPONSE:
                     emitter.resolve(payloadData.getString("eventId"), JsonUtil.getStringNullable(payloadData, "error"), payloadData.optString("result"));
                     return;
@@ -297,12 +315,7 @@ class NativeBridge {
                     if (mediaController == null) {
                         respondEmpty.accept(new PagecallError("Missing mediaController"));
                     } else {
-                        mediaController.start(new MediaInfraController.AudioProducerCallback() {
-                            @Override
-                            public void onResult(Exception error) {
-                                respondEmpty.accept(error);
-                            }
-                        });
+                        mediaController.start(error -> respondEmpty.accept(error));
                         this.synchronizePauseState();
                         // emit decibel after entering
                         AudioRecordManager.startEmitVolumeSchedule(context, emitter);
