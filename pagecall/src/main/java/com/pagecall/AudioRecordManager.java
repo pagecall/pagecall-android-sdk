@@ -26,12 +26,8 @@ class AudioRecordManager {
 
     private static final int SAMPLE_RATE = 8000;
 
-    private static final double AMPLITUDE_IDLE = 50.0;
-    private static final double AMPLITUDE_MAX = 700.0;
-
-
-    private static final double DECIBEL_IDLE = -60.0;
-    private static final double DECIBEL_MAX = 60.0;
+    private static final double AMPLITUDE_IDLE = 1000.0;
+    private static final double AMPLITUDE_MAX = 10000.0;
 
     /**
      * Checks Permission, computes and returns amplitude in 0 ~ 10000
@@ -80,22 +76,7 @@ class AudioRecordManager {
      */
     static double getMicrophoneVolume(@NonNull Context context) {
         double amplitude = getMicrophoneAmplitude(context);
-        return amplitude / AMPLITUDE_MAX;
-    }
-
-    /**
-     * returns decibel in -60 ~ 60
-     *
-     * @param context Android Context
-     * @return -Infinity if permission is not granted
-     */
-    static double getMicrophoneDecibel(@NonNull Context context) {
-        double amplitude = getMicrophoneAmplitude(context);
-
-        double a = (DECIBEL_IDLE - DECIBEL_MAX) / Math.log10(AMPLITUDE_IDLE / AMPLITUDE_MAX);
-        double b = DECIBEL_MAX - a * Math.log10(AMPLITUDE_MAX);
-        double decibel = a * Math.log10(amplitude) + b;
-        return decibel == Double.NEGATIVE_INFINITY ? -100 : decibel;
+        return (amplitude - AMPLITUDE_IDLE) / AMPLITUDE_MAX;
     }
 
     /**
