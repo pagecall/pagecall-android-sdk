@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
-    private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall"};
+    private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
     private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
 
