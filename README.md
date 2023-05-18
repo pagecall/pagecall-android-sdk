@@ -2,6 +2,8 @@
 
 This SDK provides an easy-to-integrate solution for embedding the Pagecall webapp into your Android applications using the PagecallWebView class, which extends the native WebView class. With the added bridge between WebView and the native environment, we enable seamless audio functionality for an enhanced user experience.
 
+For other platforms, please refer to https://docs.pagecall.com
+
 ## Requirements
 
 - Android API level 21 or higher
@@ -14,14 +16,24 @@ This SDK provides an easy-to-integrate solution for embedding the Pagecall webap
 allprojects {
     repositories {
         ...
-        maven { url 'https://maven.pkg.github.com/pagecall/pagecall-android-sdk' }
+        maven {
+            url 'https://maven.pkg.github.com/pagecall/pagecall-android-sdk'
+            credentials {
+                username = project.findProperty("GITHUB_USERNAME") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
 }
 ```
+
+Github authentication is required, as this SDK is currently uploaded on Github Packages.
+The `credentials` field is necessary for this purpose. The required permission in this case is `read:packages`.
+
 2. Add the dependency to your app's build.gradle file:
 ```gradle
 dependencies {
-    implementation 'com.pagecall:pagecall-android-sdk:0.0.1'
+    implementation 'com.pagecall:pagecall-android-sdk:0.0.13' // Recommended to use the latest
 }
 ```
 3. Sync your project with the Gradle files.
