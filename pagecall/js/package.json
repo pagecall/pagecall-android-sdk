@@ -19,7 +19,8 @@
     "rollup": "rollup -c",
     "rollup:watch": "yarn rollup --watch",
     "build:browserify": "browserify dist/index.js -o PagecallNative.js",
-    "build": "yarn rollup && yarn build:browserify",
+    "build": "yarn rollup && yarn build:browserify && cp ./PagecallNative.js && yarn move",
+    "move": "mkdir -p ../src/main/assets/js && mv PagecallNative.js ../src/main/assets/js/PagecallNative.js.txt",
     "dev": "watchify dist/index.js -o PagecallNative.js"
   },
   "dependencies": {
