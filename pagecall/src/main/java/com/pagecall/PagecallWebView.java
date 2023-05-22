@@ -132,7 +132,8 @@ public class PagecallWebView extends WebView {
         String jsCode = null;
         AssetManager assetManager = getContext().getAssets();
         try {
-            InputStream inputStream = assetManager.open("js/PagecallNative.js");
+            // Use txt to prevent react-native from including js file into its bundle
+            InputStream inputStream = assetManager.open("js/PagecallNative.js.txt");
             int size = inputStream.available();
             byte[] buffer = new byte[size];
             inputStream.read(buffer);
