@@ -59,6 +59,8 @@ webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={a
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 ```
 
+The current version of this SDK does not detect when a user denies permissions. Please ensure that permissions are granted before entering a room.
+
 ## Support
 
 For any issues, bug reports, or feature requests, please open an issue in this repository or contact our support team at support@pagecall.com.

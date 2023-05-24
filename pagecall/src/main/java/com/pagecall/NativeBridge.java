@@ -34,7 +34,7 @@ class NativeBridge {
     private Boolean isAudioPaused = false;
 
     public Boolean loaded = false;
-    private ArrayList<Consumer<Boolean>> loadConsumers = new ArrayList<Consumer<Boolean>>();
+    private ArrayList<Consumer<Boolean>> loadConsumers = new ArrayList();
     public void listenLoaded(Consumer<Boolean> listener) {
         if (loaded) {
             listener.accept(true);
@@ -62,10 +62,6 @@ class NativeBridge {
 
     public static final int REQUEST_AUDIO_PERMISSION = 1001;
     public static final int REQUEST_VIDEO_PERMISSION = 1002;
-
-    public interface PermissionCallback {
-        void onError(Error error);
-    }
 
     public static class MediaConstraints {
         public final Boolean audio;
@@ -95,20 +91,20 @@ class NativeBridge {
         );
     }
 
-    private Boolean requestPermission(NativeBridgeMediaType mediaType) {
+    private void requestPermission(NativeBridgeMediaType mediaType) {
+        // TODO get return value
         Context context = pagecallWebView.getContext();
         switch (mediaType.mediaType) {
             case "audio": {
-                // FIXME The line below blocks
                 ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
-                return true;
+                return;
             }
             case "video": {
                 ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.CAMERA}, REQUEST_VIDEO_PERMISSION);
-                return true;
+                return;
             }
             default: {
-                return false;
+                return;
             }
         }
     }
@@ -250,10 +246,8 @@ class NativeBridge {
                     return;
 
                 case REQUEST_PERMISSION:
+                    requestPermission(new NativeBridgeMediaType(payloadData));
                     respondBoolean.accept(null, true);
-                    // TODO restore
-                    // Boolean isGranted = requestPermission(new MediaType(payloadData));
-                    // respondBoolean.accept(null, isGranted);
                     return;
 
                 case GET_AUDIO_DEVICES:
