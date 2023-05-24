@@ -3,7 +3,6 @@ package com.pagecall;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -19,6 +18,7 @@ import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
+    final static String version = "0.0.13";
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
     private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
@@ -42,7 +42,8 @@ public class PagecallWebView extends WebView {
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setDomStorageEnabled(true);
         String userAgent = this.getSettings().getUserAgentString();
-        this.getSettings().setUserAgentString(userAgent + " Pagecall");
+
+        this.getSettings().setUserAgentString(userAgent + " PagecallAndroidSDK/" + version);
 
         if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
