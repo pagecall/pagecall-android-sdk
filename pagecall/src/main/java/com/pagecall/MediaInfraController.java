@@ -113,7 +113,7 @@ class MediaInfraController extends MediaController {
     }
 
     @Override
-    public void start(final AudioProducerCallback callback) {
+    public void start(final ErrorCallback callback) {
         MediaConstraints audioConstraints = new MediaConstraints();
         AudioSource audioSource = factory.createAudioSource(audioConstraints);
         AudioTrack audioTrack = factory.createAudioTrack("audio0", audioSource);
