@@ -1,7 +1,27 @@
 plugins {
     id 'com.android.library'
     id 'maven-publish'
+    id 'signing'
 }
+
+ext {
+    GITHUB_REPO = "pagecall-android-sdk"
+    GITHUB_ORG = "pagecall"
+    PUBLISH_GROUP_ID = "com.pagecall"
+    PUBLISH_VERSION = "0.0.3"
+
+    // secret key 들은 "afterEvaluate" 과정에서 "local.properties" 파일에서 가져옵니다.
+    signing {
+        keyId = ""
+        password = ""
+        secretKeyRingFile = ""
+    }
+    ossrhUsername = ""
+    ossrhPassword = ""
+}
+
+group = PUBLISH_GROUP_ID
+version = PUBLISH_VERSION
 
 android {
     compileSdk 33
@@ -14,7 +34,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 0
-        versionName "0.0.14" // Update `version` field of PagecallWebView as you change this
+        versionName = PUBLISH_VERSION // Update `version` field of PagecallWebView as you change this
     }
 
     buildTypes {
@@ -30,7 +50,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.appcompat:appcompat:1.6.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -40,84 +59,62 @@ dependencies {
     api 'io.github.haiyangwu:mediasoup-client:3.4.0'
 }
 
-ext {
-    GITHUB_USER = "pagecall"
-    GITHUB_REPO = "pagecall-android-sdk"
-    GITHUB_PKG_NAME = "pagecall-android-sdk"
-    GITHUB_PKG_VERSION = "0.0.14"
+afterEvaluate {
+    File secretPropsFile = project.rootProject.file("local.properties")
+    if (secretPropsFile.exists()){
+        Properties p = new Properties()
+        new FileInputStream(secretPropsFile).withCloseable { fis -> p.load(fis)}
+        p.each { key, value -> ext[key.toString()] = value }
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name 'sonatype'
+                url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+
+                // nexus manager account
+                credentials {
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+        }
+
+        publications {
+            release(MavenPublication) {
+                groupId 'com.pagecall'
+                artifactId 'pagecall-android'
+                version = PUBLISH_VERSION
+                artifact("$buildDir/outputs/aar/pagecall-release.aar")
+
+                pom {
+                    name = GITHUB_REPO
+                    description = 'lightweight Android SDK for embedding Pagecall webapp with seamless audio support.'
+                    url = "https://github.com/$GITHUB_ORG/$GITHUB_REPO"
+                    licenses {
+                        license {
+                            name = 'MIT'
+                            url = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = GITHUB_ORG
+                            name = GITHUB_ORG
+                            email = 'support@pagecall.com'
+                        }
+                    }
+                    scm {
+                        url = "https://github.com/$GITHUB_ORG/${GITHUB_REPO}.git"
+                    }
+                }
+            }
+        }
+    }
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId 'com.pagecall'
-            artifactId GITHUB_PKG_NAME
-            version GITHUB_PKG_VERSION
-            artifact("$buildDir/outputs/aar/pagecall-release.aar")
 
-            // This block generates a POM file with the included dependencies (both implementation and api)
-            // for the published library. It ensures that users of the library will automatically get the
-            // required dependencies when they add the library to their projects.
-            pom.withXml {
-                Node root = asNode()
-                Node dependenciesNode = root.appendNode('dependencies')
-
-                configurations.implementation.allDependencies.each { dep ->
-                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                        return
-
-                    Node dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
-                    dependencyNode.appendNode('scope', 'compile')
-                }
-
-                configurations.api.allDependencies.each { dep ->
-                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
-                        return
-
-                    Node dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dep.group)
-                    dependencyNode.appendNode('artifactId', dep.name)
-                    dependencyNode.appendNode('version', dep.version)
-                    dependencyNode.appendNode('scope', 'compile')
-                }
-            }
-
-            pom {
-                name = GITHUB_PKG_NAME
-                description = 'lightweight Android SDK for embedding Pagecall webapp with seamless audio support.'
-                url = "https://github.com/$GITHUB_USER/$GITHUB_REPO"
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id = GITHUB_USER
-                        name = 'parkjurung'
-                        email = 'ryan@pagecall.com'
-                    }
-                }
-                scm {
-                    connection = "scm:git:git://github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
-                    developerConnection = "scm:git:ssh://github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
-                    url = "https://github.com/$GITHUB_USER/$GITHUB_REPO/tree/main"
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/$GITHUB_USER/$GITHUB_REPO")
-            credentials {
-                username = GITHUB_USER
-                password = System.getenv("GITHUB_TOKEN") 
-            }
-        }
-    }
+signing {
+    sign publishing.publications
 }
