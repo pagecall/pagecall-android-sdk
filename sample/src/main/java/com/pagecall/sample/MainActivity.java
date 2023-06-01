@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 webView.setLayoutParams(new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-                webView.loadUrl("https://demo.pagecall.net/join/six-canvas/230321abcjurung?build=latest&chime=0");
+                webView.loadUrl("https://demo.pagecall.net/join/six-canvas/230531abcjurung?build=latest&chime=0");
                 webView.listenMessage(message -> {
                     Log.d("Ryan", "message: " + message);
                 });
