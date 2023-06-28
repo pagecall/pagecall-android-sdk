@@ -219,6 +219,7 @@ class NativeBridge {
         final Consumer<Exception> respondEmpty = (error) -> {
             respond.accept(error, null);
         };
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         try {
             switch (bridgeAction) {
@@ -230,11 +231,15 @@ class NativeBridge {
                     loadConsumers.clear();
                     return;
                 case INITIALIZE:
+                    if (audioManager != null) {
+                        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                    } else {
+                        respondEmpty.accept(new PagecallError("Missing audioManager"));
+                    }
                     if (mediaController != null) {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
                     }
-
                     MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
                     this.mediaController = new MediaInfraController(emitter, initialPayload, context);
                     this.synchronizePauseState();
@@ -251,7 +256,6 @@ class NativeBridge {
                     return;
 
                 case GET_AUDIO_DEVICES:
-                    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
                     if (audioManager != null) {
                         AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
                         AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
