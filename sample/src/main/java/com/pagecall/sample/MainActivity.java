@@ -1,5 +1,6 @@
 package com.pagecall.sample;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -65,5 +66,11 @@ public class MainActivity extends AppCompatActivity {
                 webView.sendMessage("'hihi'");
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        webView.onActivityResult(requestCode, resultCode, intent);
     }
 }
