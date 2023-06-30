@@ -12,6 +12,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PagecallWebChromeClient extends WebChromeClient {
 
@@ -27,6 +28,8 @@ public class PagecallWebChromeClient extends WebChromeClient {
 
     @Override
     public void onPermissionRequest(final PermissionRequest request) {
+
+
         request.grant(request.getResources());
     }
 
@@ -46,7 +49,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
         chooserIntent.putExtra(Intent.EXTRA_INTENT, fileSelectionIntent);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
 
-        ((Activity) this.webView.getContext()).startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
+        this.webView.getActivity().startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
 
         return true;
     }

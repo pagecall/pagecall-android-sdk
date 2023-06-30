@@ -1,6 +1,8 @@
 package com.pagecall;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.util.AttributeSet;
@@ -34,6 +36,25 @@ public class PagecallWebView extends WebView {
     public PagecallWebView(Context context) {
         super(context);
         init(context);
+    }
+
+    public Activity getActivity() {
+        Context context = this.getContext();
+        return getActivityRecursively(context);
+    }
+
+    private Activity getActivityRecursively(Context context) {
+        if (context == null) {
+            throw new RuntimeException("Tried to getContext while not attached to an Activity");
+        }
+
+        if (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            } else {
+                return getActivityRecursively(((ContextWrapper) context).getBaseContext());
+            }
+        }
     }
 
     private PagecallWebChromeClient webChromeClient;
