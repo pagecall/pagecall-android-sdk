@@ -1,10 +1,9 @@
 package com.pagecall;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.util.AttributeSet;
-import android.webkit.PermissionRequest;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -19,6 +18,7 @@ import java.util.function.Consumer;
 // TODO: package private
 public class PagecallWebView extends WebView {
     final static String version = "0.0.15";
+
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
     private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
@@ -35,6 +35,8 @@ public class PagecallWebView extends WebView {
         super(context);
         init(context);
     }
+
+    private PagecallWebChromeClient webChromeClient;
 
     protected void init(Context context) {
         if (this.pagecallUrls == null) {
@@ -57,12 +59,14 @@ public class PagecallWebView extends WebView {
                 }
             }
         });
-        this.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onPermissionRequest(final PermissionRequest request) {
-                request.grant(request.getResources());
-            }
-        });
+        this.webChromeClient = new PagecallWebChromeClient(this);
+        this.setWebChromeClient(this.webChromeClient);
+    }
+
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+        if (this.webChromeClient != null) {
+            this.webChromeClient.handleActivityResult(requestCode, resultCode, intent);
+        }
     }
 
     private boolean isUrlContainsPagecallUrl(String url) {
@@ -161,6 +165,5 @@ public class PagecallWebView extends WebView {
         super.onDetachedFromWindow();
         destroyBridge();
     }
-
 }
 
