@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
-    final static String version = "0.0.15";
+    final static String version = "0.0.18";
 
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
