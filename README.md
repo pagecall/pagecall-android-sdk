@@ -50,11 +50,21 @@ import com.pagecall.PagecallWebView;
 ```java
 PagecallWebView webView = new PagecallWebView(this);
 ```
-3. Load the Pagecall webapp URL:
+3. Please delegate `onActivityResult(...)` to enable file upload functionality:
+```java
+// MainActivity.java
+@Override
+public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    super.onActivityResult(requestCode, resultCode, intent);
+    webView.onActivityResult(requestCode, resultCode, intent);
+}
+
+```
+4. Load the Pagecall webapp URL:
 ```java
 webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={access_token}");
 ```
-4. Don't forget to add the required permissions in your `AndroidManifest.xml`:
+5. Don't forget to add the required permissions in your `AndroidManifest.xml`:
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
