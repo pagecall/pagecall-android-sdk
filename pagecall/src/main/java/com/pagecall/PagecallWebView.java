@@ -1,8 +1,8 @@
 package com.pagecall;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.AttributeSet;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -26,19 +26,20 @@ public class PagecallWebView extends WebView {
     private String[] pagecallUrls = null;
     private NativeBridge nativeBridge = null;
 
-    public PagecallWebView(Context context, String[] pagecallUrls) {
-        this(context);
-        this.pagecallUrls = pagecallUrls;
+    public PagecallWebView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     public PagecallWebView(Context context) {
         super(context);
+        init(context);
+    }
 
+    protected void init(Context context) {
         if (this.pagecallUrls == null) {
             pagecallUrls = defaultPagecallUrls;
         }
-
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setDomStorageEnabled(true);
         String userAgent = this.getSettings().getUserAgentString();
@@ -63,6 +64,7 @@ public class PagecallWebView extends WebView {
             }
         });
     }
+
     private boolean isUrlContainsPagecallUrl(String url) {
         for (String pagecallUrl : pagecallUrls) {
             if (url.contains(pagecallUrl)) {
