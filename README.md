@@ -40,6 +40,8 @@ dependencies {
 
 ## Usage
 
+#### Activity (Java)
+
 1. In your Android project, import the PagecallWebView class:
 ```java
 import com.pagecall.PagecallWebView;
@@ -60,6 +62,15 @@ webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={a
 ```
 
 The current version of this SDK does not detect when a user denies permissions. Please ensure that permissions are granted before entering a room.
+
+#### Layout (XML)
+
+```xml
+<com.pagecall.PagecallWebView
+    android:id="@+id/webview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+```
 
 ## Support
 
