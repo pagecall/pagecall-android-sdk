@@ -1,4 +1,3 @@
-import type { MediaStat } from "@pagecall/common";
 import ListenerController, { Listener } from "./ListenerController";
 import RequestController, { Callback } from "./RequestController";
 
@@ -7,7 +6,7 @@ function registerGlobals() {
   const listenerController = new ListenerController();
 
   const postMessage = (
-    data: { action: string; payload?: string },
+    data: { action: string; payload?: unknown },
     callback?: { resolve: Callback; reject: Callback }
   ) => {
     const { action, payload } = data;
@@ -18,19 +17,6 @@ function registerGlobals() {
       JSON.stringify({ action, payload, requestId })
     );
   };
-
-  let trialCount = 0;
-  const interval = setInterval(() => {
-    trialCount ++;
-    if (trialCount > 60) {
-      console.error("PagecallUI not found");
-      clearInterval(interval);
-    }
-    if ((window as any)["PagecallUI"]) {
-      postMessage({ action: "loaded" })
-      clearInterval(interval);
-    }
-  }, 1000);
 
   const pagecallNativePrivate = {
     emit: (eventName: string, payload?: string, eventId?: string) => {
@@ -77,7 +63,7 @@ function registerGlobals() {
       if (typeof action === 'symbol') throw new Error('Invalid access');
       return (payload: unknown) => new Promise((resolve, reject) => {
         postMessage(
-          { action, payload: JSON.stringify(payload) },
+          { action, payload },
           { resolve, reject }
         );
       });

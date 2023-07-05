@@ -18,7 +18,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -34,13 +33,10 @@ class NativeBridge {
     private Boolean isAudioPaused = false;
 
     public Boolean loaded = false;
-    private ArrayList<Consumer<Boolean>> loadConsumers = new ArrayList();
-    public void listenLoaded(Consumer<Boolean> listener) {
-        if (loaded) {
-            listener.accept(true);
-            return;
-        }
-        this.loadConsumers.add(listener);
+
+    private ArrayList<Consumer<JSONObject>> bridgeMessageConsumers = new ArrayList();
+    public void listenBridgeMessages(Consumer<JSONObject> listener) {
+        this.bridgeMessageConsumers.add(listener);
     }
 
     private void setIsAudioPaused(Boolean value) {
@@ -164,13 +160,14 @@ class NativeBridge {
     @JavascriptInterface
     public void postMessage(String message) {
         JSONObject jsonObject = safeParseJSON(message);
+        this.bridgeMessageConsumers.forEach(consumer -> {
+            consumer.accept(jsonObject);
+        });
 
         String action = jsonObject.optString("action", "");
         String requestId = jsonObject.optString("requestId", "");
         String payload = jsonObject.optString("payload", "{}");
         String postType = jsonObject.optString("type", "");
-
-
         JSONObject payloadData = safeParseJSON(payload);
 
         if (postType.equals("subscription")) {
@@ -225,10 +222,6 @@ class NativeBridge {
             switch (bridgeAction) {
                 case LOADED:
                     this.loaded = true;
-                    this.loadConsumers.forEach(consumer -> {
-                        consumer.accept(true);
-                    });
-                    loadConsumers.clear();
                     return;
                 case INITIALIZE:
                     if (audioManager != null) {

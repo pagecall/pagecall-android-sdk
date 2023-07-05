@@ -1,7 +1,9 @@
 package com.pagecall;
 
 enum NativeBridgeAction {
-    LOADED("loaded"), // js loaded (when window.PagecallUI exists)
+    LOADED("loaded"),
+    TERMINATED("terminated"),
+    MESSAGE("message"),
     INITIALIZE("initialize"),
     DISPOSE("dispose"),
     START("start"),
@@ -14,6 +16,7 @@ enum NativeBridgeAction {
     REQUEST_AUDIO_VOLUME("requestAudioVolume"),
     CONSUME("consume"),
     RESPONSE("response"),
+
     ;
 
     private final String value;
