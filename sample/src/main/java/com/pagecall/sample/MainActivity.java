@@ -12,8 +12,9 @@ import android.widget.RelativeLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pagecall.PagecallWebView;
+import com.pagecall.TerminationReason;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PagecallWebView.Listener {
 
     private Button toggleButton;
     private Button sendButton;
@@ -53,9 +54,7 @@ public class MainActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
                 webView.loadUrl("https://demo.pagecall.net/join/six-canvas/230531abcjurung?build=latest&chime=0");
-                webView.listenMessage(message -> {
-                    Log.d("Ryan", "message: " + message);
-                });
+                webView.setListener(this);
                 webViewContainer.addView(webView);
                 isWebViewVisible = true;
             }
@@ -71,5 +70,26 @@ public class MainActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         webView.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    // PagecallWebView.Listener implementations
+    @Override
+    public void onLoaded() {
+        Log.d("SampleApp", "Room is loaded");
+    }
+
+    @Override
+    public void onMessage(String message) {
+        Log.d("SampleApp", "Message received: " + message);
+    }
+
+    @Override
+    public void onTerminated(TerminationReason reason) {
+        if (reason == TerminationReason.INTERNAL) {
+            Log.d("SampleApp", "Terminated with internal reason");
+        }
+        if (reason == TerminationReason.OTHER) {
+            Log.d("SampleApp", "Terminated with other reason (" + reason.getOtherReason() +")");
+        }
     }
 }

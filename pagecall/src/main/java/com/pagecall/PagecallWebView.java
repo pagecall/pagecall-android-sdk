@@ -7,6 +7,8 @@ import android.util.AttributeSet;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -17,6 +19,15 @@ import java.util.function.Consumer;
 
 // TODO: package private
 public class PagecallWebView extends WebView {
+
+    public interface Listener {
+        void onLoaded();
+        void onMessage(String message);
+        void onTerminated(TerminationReason reason);
+    }
+
+    private Listener listener;
+
     final static String version = "0.0.18";
 
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
@@ -36,6 +47,10 @@ public class PagecallWebView extends WebView {
         init(context);
     }
 
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
     private PagecallWebChromeClient webChromeClient;
 
     protected void init(Context context) {
@@ -49,6 +64,33 @@ public class PagecallWebView extends WebView {
         this.getSettings().setUserAgentString(userAgent + " PagecallAndroidSDK/" + version);
 
         if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
+        nativeBridge.listenBridgeMessages(jsonMessage -> {
+            if (this.listener == null) return;
+            String action = jsonMessage.optString("action", "");
+            NativeBridgeAction bridgeAction = NativeBridgeAction.fromString(action);
+
+            if (bridgeAction == NativeBridgeAction.REQUEST_AUDIO_VOLUME) return;
+
+            switch (bridgeAction) {
+                case LOADED: {
+                    this.listener.onLoaded();
+                    break;
+                }
+                case TERMINATED: {
+                    JSONObject payload = jsonMessage.optJSONObject("payload");
+                    String reasonString = payload.optString("reason");
+                    TerminationReason reason = TerminationReason.fromString(reasonString);
+                    this.listener.onTerminated(reason);
+                    break;
+                }
+                case MESSAGE: {
+                    JSONObject payload = jsonMessage.optJSONObject("payload");
+                    String message = payload.optString("message");
+                    this.listener.onMessage(message);
+                    break;
+                }
+            }
+        });
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
         this.setWebViewClient(new WebViewClient() {
@@ -120,21 +162,6 @@ public class PagecallWebView extends WebView {
         };
     }
 
-    public void listenMessage(Consumer<String> subscriber) {
-        if (nativeBridge == null) return;
-
-        nativeBridge.listenLoaded(loaded -> {
-            if (!loaded) return;
-            subscribe("PagecallUI.customMessage$", payload -> {
-                if (payload != null) {
-                    subscriber.accept(payload);
-                } else {
-                    // todo: handle exception
-                }
-            });
-        });
-    }
-
     private String getNativeJS() {
         String jsCode = null;
         AssetManager assetManager = getContext().getAssets();
@@ -166,4 +193,3 @@ public class PagecallWebView extends WebView {
         destroyBridge();
     }
 }
-
