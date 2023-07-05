@@ -70,8 +70,9 @@ webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={a
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 ```
-
 The current version of this SDK does not detect when a user denies permissions. Please ensure that permissions are granted before entering a room.
+
+6. You can listen to some events (Loaded, Message, Terminated) from PagecallWebView by implementing PagecallWebView. Listener delegate interface and passing to PagecallWebView.setListener(listenerImpl) See [MainActivity.java](/sample/src/main/java/com/pagecall/sample/MainActivity.java) in the sample app.
 
 #### Layout (XML)
 
