@@ -3,7 +3,9 @@ package com.pagecall;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.media.AudioManager;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -28,7 +30,7 @@ public class PagecallWebView extends WebView {
 
     private Listener listener;
 
-    final static String version = "0.0.20";
+    final static String version = "0.0.21";
 
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
@@ -37,14 +39,39 @@ public class PagecallWebView extends WebView {
     private String[] pagecallUrls = null;
     private NativeBridge nativeBridge = null;
 
+    private Context context;
+    private Boolean isChime = false;
+
     public PagecallWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
+        this.context = context;
+    }
+
+    public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
+        if (!this.isChime) return false;
+        // chime일 때만 아래 코드를 실행
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                        AudioManager.ADJUST_RAISE,
+                        AudioManager.FLAG_SHOW_UI);
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
+                        AudioManager.ADJUST_LOWER,
+                        AudioManager.FLAG_SHOW_UI);
+                return true;
+            default:
+                return false;
+        }
     }
 
     public PagecallWebView(Context context) {
         super(context);
         init(context);
+        this.context = context;
     }
 
     public void setListener(Listener listener) {
@@ -74,6 +101,16 @@ public class PagecallWebView extends WebView {
             switch (bridgeAction) {
                 case LOADED: {
                     this.listener.onLoaded();
+                    this.post(() -> this.evaluateJavascript("!!Pagecall.media.chimeSession$", value -> {
+                        if ("true".equals(value)) {
+                            // Chime
+                            this.isChime = true;
+                            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                        } else {
+                            // MI
+                        }
+                    }));
                     break;
                 }
                 case TERMINATED: {

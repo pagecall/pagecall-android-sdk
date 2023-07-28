@@ -3,6 +3,7 @@ package com.pagecall.sample;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -66,6 +67,13 @@ public class MainActivity extends AppCompatActivity implements PagecallWebView.L
         });
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (webView.handleVolumeKeys(keyCode, event)) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
