@@ -36,7 +36,9 @@ class NativeBridge {
 
     private ArrayList<Consumer<JSONObject>> bridgeMessageConsumers = new ArrayList();
     public void listenBridgeMessages(Consumer<JSONObject> listener) {
-        this.bridgeMessageConsumers.add(listener);
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            this.bridgeMessageConsumers.add(listener);
+        }
     }
 
     private void setIsAudioPaused(Boolean value) {
