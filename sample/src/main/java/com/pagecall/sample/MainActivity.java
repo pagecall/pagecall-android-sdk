@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements PagecallWebView.L
                 webView.setLayoutParams(new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-                webView.loadUrl("https://demo.pagecall.net/join/six-canvas/230531abcjurung?build=latest&chime=0");
+                webView.loadUrl("https://google.com");
                 webView.setListener(this);
                 webViewContainer.addView(webView);
                 isWebViewVisible = true;
