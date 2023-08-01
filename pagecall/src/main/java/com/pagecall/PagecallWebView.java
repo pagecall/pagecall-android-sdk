@@ -30,7 +30,7 @@ public class PagecallWebView extends WebView {
 
     private Listener listener;
 
-    final static String version = "0.0.22";
+    final static String version = "0.0.23";
 
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
@@ -44,7 +44,17 @@ public class PagecallWebView extends WebView {
 
     public PagecallWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            init(context);
+        }
+        this.context = context;
+    }
+
+    public PagecallWebView(Context context) {
+        super(context);
+        if (android.os.Build.VERSION.SDK_INT >= 24) {
+            init(context);
+        }
         this.context = context;
     }
 
@@ -66,12 +76,6 @@ public class PagecallWebView extends WebView {
             default:
                 return false;
         }
-    }
-
-    public PagecallWebView(Context context) {
-        super(context);
-        init(context);
-        this.context = context;
     }
 
     public void setListener(Listener listener) {
