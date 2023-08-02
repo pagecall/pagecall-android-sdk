@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements PagecallWebView.L
                 webView.setLayoutParams(new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
-                webView.loadUrl("https://google.com");
+                webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={token}}"); // Replace {room_id} and {token} with your own values
                 webView.setListener(this);
                 webViewContainer.addView(webView);
                 isWebViewVisible = true;
