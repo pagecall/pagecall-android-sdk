@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 // TODO: package private
-public class PagecallWebView extends WebView {
+final public class PagecallWebView extends WebView {
 
     public interface Listener {
         void onLoaded();
