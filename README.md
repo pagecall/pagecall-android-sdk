@@ -33,7 +33,7 @@ The `credentials` field is necessary for this purpose. The required permission i
 2. Add the dependency to your app's build.gradle file:
 ```gradle
 dependencies {
-    implementation 'com.pagecall:pagecall-android-sdk:0.0.23' // Recommended to use the latest
+    implementation 'com.pagecall:pagecall-android-sdk:0.0.24' // Recommended to use the latest
 }
 ```
 3. Sync your project with the Gradle files.
