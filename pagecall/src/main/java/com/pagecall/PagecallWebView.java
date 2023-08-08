@@ -4,10 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONObject;
 
@@ -16,6 +20,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -26,6 +31,29 @@ final public class PagecallWebView extends WebView {
         void onLoaded();
         void onMessage(String message);
         void onTerminated(TerminationReason reason);
+    }
+
+    public enum PagecallMode {
+        MEET("meet"),
+        REPLAY("replay")
+        ;
+
+        private final String value;
+
+        PagecallMode(String value) {
+            this.value = value;
+        }
+
+        public String getBaseURLString() {
+            switch(this.value) {
+                case "meet":
+                    return "https://app.pagecall.com/meet";
+                case "replay":
+                    return "https://app.pagecall.com/replay";
+                default:
+                    throw new IllegalArgumentException("Unsupported PagecallMode");
+            }
+        }
     }
 
     private Listener listener;
@@ -80,6 +108,56 @@ final public class PagecallWebView extends WebView {
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode) {
+        this.load(roomId, accessToken, mode, new HashMap<>());
+    }
+    public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode, @Nullable HashMap<String, String> queryItems) {
+        Uri baseUri = Uri.parse(mode.getBaseURLString());
+        Uri.Builder uriBuilder = baseUri.buildUpon()
+            .appendQueryParameter("room_id", roomId)
+            .appendQueryParameter("access_token", accessToken);
+        if (queryItems != null && !queryItems.isEmpty()) {
+            for (Map.Entry<String, String> entry : queryItems.entrySet()) {
+                uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
+            }
+        }
+
+        super.loadUrl(uriBuilder.toString());
+    }
+
+    /**
+     * @deprecated use load(roomId, accessToken, mode) instead.
+     */
+    @Override
+    @Deprecated
+    public void loadUrl(@NonNull String url) {
+        super.loadUrl(url);
+    }
+
+    /**
+     * @deprecated use load(roomId, accessToken, mode) instead.
+     */
+    @Override @Deprecated
+    public void loadUrl(@NonNull String url, @NonNull Map<String, String> additionalHttpHeaders) {
+        super.loadUrl(url, additionalHttpHeaders);
+    }
+
+    /**
+     * @deprecated use load(roomId, accessToken, mode) instead.
+     */
+    @Override @Deprecated
+    public void loadData(@NonNull String data, @Nullable String mimeType, @Nullable String encoding) {
+        super.loadData(data, mimeType, encoding);
+    }
+
+    /**
+     * @deprecated use load(roomId, accessToken, mode) instead.
+     */
+    @Override @Deprecated
+    public void loadDataWithBaseURL(@Nullable String baseUrl, @NonNull String data, @Nullable String mimeType, @Nullable String encoding, @Nullable String historyUrl) {
+        super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
     }
 
     private PagecallWebChromeClient webChromeClient;
@@ -182,17 +260,17 @@ final public class PagecallWebView extends WebView {
         subscribers.put(id, subscriber);
         String returningScript = String.format(
                 "const callback = (value) => {" +
-                "  window.%s.postMessage(JSON.stringify({" +
-                "    type: \"subscription\"," +
-                "    payload: {" +
-                "      id: \"%s\"," +
-                "      value" +
-                "    }" +
-                "  }));" +
-                "};" +
-                "const subscription = %s.subscribe(callback);" +
-                "if (!window[\"%s\"]) window[\"%s\"] = {};" +
-                "window[\"%s\"][\"%s\"] = subscription;",
+                        "  window.%s.postMessage(JSON.stringify({" +
+                        "    type: \"subscription\"," +
+                        "    payload: {" +
+                        "      id: \"%s\"," +
+                        "      value" +
+                        "    }" +
+                        "  }));" +
+                        "};" +
+                        "const subscription = %s.subscribe(callback);" +
+                        "if (!window[\"%s\"]) window[\"%s\"] = {};" +
+                        "window[\"%s\"][\"%s\"] = subscription;",
                 jsInterfaceName, id, target, subscriptionsStorageName, subscriptionsStorageName, subscriptionsStorageName, id);
         evaluateJavascriptWithLog(returningScript);
 

@@ -62,7 +62,10 @@ public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 ```
 4. Load the Pagecall webapp URL:
 ```java
-webView.loadUrl("https://app.pagecall.com/meet?room_id={room_id}&access_token={access_token}");
+// meet mode
+webView.load("{room_id}", "{token}", PagecallWebView.PagecallMode.MEET);
+// replay mode
+webView.load("{room_id}", "{token}", PagecallWebView.PagecallMode.REPLAY);
 ```
 5. Don't forget to add the required permissions in your `AndroidManifest.xml`:
 ```xml
