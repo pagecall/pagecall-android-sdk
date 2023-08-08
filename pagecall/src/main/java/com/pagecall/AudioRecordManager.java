@@ -76,7 +76,8 @@ class AudioRecordManager {
      */
     static double getMicrophoneVolume(@NonNull Context context) {
         double amplitude = getMicrophoneAmplitude(context);
-        return (amplitude - AMPLITUDE_IDLE) / AMPLITUDE_MAX;
+        double volume = (amplitude - AMPLITUDE_IDLE) / AMPLITUDE_MAX;
+        return Math.max(0, Math.min(1, volume));
     }
 
     /**
