@@ -257,7 +257,16 @@ class NativeBridge {
                         System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
 
                         MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
-                        respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(deviceList));
+
+                        /**
+                         * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
+                         * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
+                         * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
+                         */
+                        MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
+
+                        respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
+
                     } else {
                         respondEmpty.accept(new PagecallError("Missing audioManager"));
                     }
