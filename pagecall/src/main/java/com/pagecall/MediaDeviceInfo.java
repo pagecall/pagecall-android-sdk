@@ -42,6 +42,14 @@ class MediaDeviceInfo {
         return mediaDeviceInfoList;
     }
 
+    public static MediaDeviceInfo[] pickOneInput(MediaDeviceInfo[] originalDeviceList) {
+        for (MediaDeviceInfo deviceInfo : originalDeviceList) {
+            if ("audioinput".equals(deviceInfo.getKind().toString())) {
+                return new MediaDeviceInfo[]{deviceInfo};
+            }
+        }
+        return new MediaDeviceInfo[]{};
+    }
     @NonNull
     public static JSONArray convertToJSONArray(@NonNull MediaDeviceInfo[] mediaDeviceInfoList) throws JSONException {
         String json = GSON.toJson(mediaDeviceInfoList);
