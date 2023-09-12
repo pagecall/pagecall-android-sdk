@@ -7,6 +7,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -84,6 +85,16 @@ final public class PagecallWebView extends WebView {
             init(context);
         }
         this.context = context;
+    }
+
+    @Override
+    public void setWebChromeClient(WebChromeClient client) {
+        throw new UnsupportedOperationException("PagecallWebView does not support setWebChromeClient");
+    }
+
+    @Override
+    public void setWebViewClient(WebViewClient client) {
+        throw new UnsupportedOperationException("PagecallWebView does not support setWebChromeClient");
     }
 
     public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
@@ -212,7 +223,7 @@ final public class PagecallWebView extends WebView {
         });
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
-        this.setWebViewClient(new WebViewClient() {
+        super.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
                 if (isUrlContainsPagecallUrl(url)) {
                     String jsCode = getNativeJS();
@@ -221,7 +232,7 @@ final public class PagecallWebView extends WebView {
             }
         });
         this.webChromeClient = new PagecallWebChromeClient(this);
-        this.setWebChromeClient(this.webChromeClient);
+        super.setWebChromeClient(this.webChromeClient);
     }
 
     public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
