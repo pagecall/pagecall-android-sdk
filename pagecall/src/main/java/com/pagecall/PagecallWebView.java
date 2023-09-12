@@ -94,7 +94,7 @@ final public class PagecallWebView extends WebView {
 
     @Override
     public void setWebViewClient(WebViewClient client) {
-        throw new UnsupportedOperationException("PagecallWebView does not support setWebChromeClient");
+        throw new UnsupportedOperationException("PagecallWebView does not support setWebViewClient");
     }
 
     public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
