@@ -45,6 +45,15 @@ final public class PagecallWebView extends WebView {
             this.value = value;
         }
 
+        public static PagecallMode fromString(String modeStr) {
+            for (PagecallMode mode : PagecallMode.values()) {
+                if (mode.toString().equalsIgnoreCase(modeStr)) {
+                    return mode;
+                }
+            }
+            throw new IllegalArgumentException("Invalid enum value: " + modeStr);
+        }
+
         public String getBaseURLString() {
             switch(this.value) {
                 case "meet":
