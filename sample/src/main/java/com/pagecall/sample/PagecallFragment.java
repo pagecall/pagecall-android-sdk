@@ -13,6 +13,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceError;
 import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.Toolbar;
@@ -119,5 +120,10 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
         if (reason == TerminationReason.OTHER) {
             Log.d("SampleApp", "Terminated with other reason (" + reason.getOtherReason() + ")");
         }
+    }
+
+    @Override
+    public void onError(WebResourceError error) {
+        Log.d("SampleApp", "Error occurred " + error.getDescription());
     }
 }

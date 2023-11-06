@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -32,6 +34,7 @@ final public class PagecallWebView extends WebView {
         void onLoaded();
         void onMessage(String message);
         void onTerminated(TerminationReason reason);
+        void onError(WebResourceError error);
     }
 
     public enum PagecallMode {
@@ -233,10 +236,18 @@ final public class PagecallWebView extends WebView {
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
         super.setWebViewClient(new WebViewClient() {
+            @Override
             public void onPageFinished(WebView view, String url) {
                 if (isUrlContainsPagecallUrl(url)) {
                     String jsCode = getNativeJS();
                     view.evaluateJavascript(jsCode, null);
+                }
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                if (listener != null) {
+                    listener.onError(error);
                 }
             }
         });
