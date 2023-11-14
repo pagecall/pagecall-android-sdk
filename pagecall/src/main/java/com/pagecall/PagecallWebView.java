@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
@@ -238,6 +239,10 @@ final public class PagecallWebView extends WebView {
         super.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
+                    // Do not evaluate native code under android 8. It will use web sdk.
+                    return;
+                }
                 if (isUrlContainsPagecallUrl(url)) {
                     String jsCode = getNativeJS();
                     view.evaluateJavascript(jsCode, null);
