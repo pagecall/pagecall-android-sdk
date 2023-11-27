@@ -192,6 +192,7 @@ final public class PagecallWebView extends WebView {
         }
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setDomStorageEnabled(true);
+        this.getSettings().setMediaPlaybackRequiresUserGesture(false);
         String userAgent = this.getSettings().getUserAgentString();
 
         this.getSettings().setUserAgentString(userAgent + " PagecallAndroidSDK/" + version);
