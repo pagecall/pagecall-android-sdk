@@ -162,20 +162,20 @@ class MediaInfraController extends MediaController {
                 e.printStackTrace();
             }
         }
-//        if (sendTransport != null) {
-//            try {
-//                sendTransport.dispose(); // TODO close or dispose?
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-        if (recvTransport != null) {
+        if (sendTransport != null) {
             try {
-                recvTransport.dispose();
+                sendTransport.dispose(); // TODO close or dispose?
             } catch(Exception e) {
                 e.printStackTrace();
             }
         }
+//        if (recvTransport != null) {
+//            try {
+//                recvTransport.dispose();
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     private SendTransport.Listener sendTransportListener = new SendTransport.Listener() {
