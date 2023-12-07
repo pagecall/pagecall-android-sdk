@@ -155,27 +155,18 @@ class MediaInfraController extends MediaController {
 
     @Override
     public void dispose() {
-//        if (producer != null) {
-//            try {
-//                producer.close();
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (sendTransport != null) {
-//            try {
-//                sendTransport.dispose(); // TODO close or dispose?
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (recvTransport != null) {
-//            try {
-//                recvTransport.dispose();
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        if (producer != null) {
+            producer.close();
+            producer = null;
+        }
+        if (sendTransport != null) {
+            sendTransport.dispose(); // TODO close or dispose?
+            sendTransport = null;
+        }
+        if (recvTransport != null) {
+            recvTransport.dispose();
+            recvTransport = null;
+        }
     }
 
     private SendTransport.Listener sendTransportListener = new SendTransport.Listener() {

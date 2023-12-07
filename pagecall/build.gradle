@@ -14,7 +14,7 @@ android {
         consumerProguardFiles "consumer-rules.pro"
 
         versionCode 0
-        versionName "0.0.30-rc4" // Update `version` field of PagecallWebView as you change this
+        versionName "0.0.30-rc5" // Update `version` field of PagecallWebView as you change this
     }
 
     buildTypes {
@@ -44,7 +44,7 @@ ext {
     GITHUB_USER = "pagecall"
     GITHUB_REPO = "pagecall-android-sdk"
     GITHUB_PKG_NAME = "pagecall-android-sdk"
-    GITHUB_PKG_VERSION = "0.0.30-rc4"
+    GITHUB_PKG_VERSION = "0.0.30-rc5"
 }
 
 publishing {
