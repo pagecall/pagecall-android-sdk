@@ -1,5 +1,7 @@
 package com.pagecall;
 
+import static org.webrtc.voiceengine.BuildInfo.getDeviceModel;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -159,9 +161,12 @@ class MediaInfraController extends MediaController {
             producer.close();
             producer = null;
         }
-        if (sendTransport != null && !sendTransport.isClosed()) {
-            sendTransport.close(); // TODO close or dispose?
-            sendTransport = null;
+        String deviceModel = getDeviceModel();
+        if (!deviceModel.equals("SM-X200")) {
+            if (sendTransport != null) {
+                sendTransport.dispose(); // TODO close or dispose?
+                sendTransport = null;
+            }
         }
         if (recvTransport != null) {
             recvTransport.dispose();
