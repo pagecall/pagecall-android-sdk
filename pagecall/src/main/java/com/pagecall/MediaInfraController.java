@@ -3,6 +3,8 @@ package com.pagecall;
 import static org.webrtc.voiceengine.BuildInfo.getDeviceModel;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -157,20 +159,19 @@ class MediaInfraController extends MediaController {
 
     @Override
     public void dispose() {
+        Handler mainHandler = new Handler(Looper.getMainLooper());
         if (producer != null) {
             producer.close();
             producer = null;
         }
         String deviceModel = getDeviceModel();
-        if (!deviceModel.equals("SM-X200")) {
-            if (sendTransport != null) {
+        if (sendTransport != null) {
+            mainHandler.post(() -> {
                 sendTransport.dispose(); // TODO close or dispose?
-                sendTransport = null;
-            }
+            });
         }
         if (recvTransport != null) {
-            recvTransport.dispose();
-            recvTransport = null;
+            mainHandler.post(() -> recvTransport.dispose());
         }
     }
 
