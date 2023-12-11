@@ -62,10 +62,13 @@ class MediaInfraController extends MediaController {
     WebViewEmitter emitter;
 
     MediaInfraController(WebViewEmitter emitter, MiInitialPayload initialPayload, Context context) throws MediasoupException {
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$ MediaInfraController 0");
         MediasoupClient.initialize(context);
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$ MediaInfraController 1");
 
         this.emitter = emitter;
         this.device = new Device();
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$ MediaInfraController 2");
         this.device.load(initialPayload.rtpCapabilities, null);
         this.sendTransport = device.createSendTransport(
                 sendTransportListener,
@@ -84,6 +87,7 @@ class MediaInfraController extends MediaController {
                 initialPayload.recv.sctpParameters
         );
         this.factory = this.createPeerConnectionFactory();
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$ MediaInfraController 3");
     }
 
     private PeerConnectionFactory createPeerConnectionFactory() {
@@ -96,6 +100,7 @@ class MediaInfraController extends MediaController {
 
     @Override
     public Boolean pauseAudio() {
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$$ pauseAudio");
         if (producer != null) {
             producer.pause();
             return true;
@@ -105,15 +110,20 @@ class MediaInfraController extends MediaController {
 
     @Override
     public Boolean resumeAudio() {
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$$$ resumeAudio 0");
         if (producer != null) {
+            Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$$$ resumeAudio 1");
             producer.resume();
+            Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$$$ resumeAudio 2");
             return true;
         }
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$$$$$$$ resumeAudio 3");
         return false;
     }
 
     @Override
     public void start(final AudioProducerCallback callback) {
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$$ start");
         MediaConstraints audioConstraints = new MediaConstraints();
         AudioSource audioSource = factory.createAudioSource(audioConstraints);
         AudioTrack audioTrack = factory.createAudioTrack("audio0", audioSource);
@@ -127,6 +137,7 @@ class MediaInfraController extends MediaController {
                 }
 
                 try {
+                    Log.d("Ryan123", "about to create producer");
                     producer = sendTransport.produce(
                             newProducer -> {
                                 if (producer != null) {
@@ -155,6 +166,7 @@ class MediaInfraController extends MediaController {
 
     @Override
     public void dispose() {
+        Log.d("Ryan123", "$$$$$$$$$$$$$$$ dispose");
         if (producer != null) {
             producer.close();
         }
@@ -193,6 +205,7 @@ class MediaInfraController extends MediaController {
 
         @Override
         public void onConnect(Transport transport, String dtlsParameters) {
+            Log.d("Ryan123", "$$$$$$$$$$$$$ onConnect");
             JSONObject parsedDtlsParameters;
             try {
                 parsedDtlsParameters = new JSONObject(dtlsParameters);

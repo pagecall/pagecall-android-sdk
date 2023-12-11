@@ -45,6 +45,7 @@ class NativeBridge {
     }
 
     private void synchronizePauseState() {
+        Log.d("Ryan123", "synchronizePauseState");
         if (mediaController == null) return;
 
         Boolean success = isAudioPaused ? mediaController.pauseAudio() : mediaController.resumeAudio();
@@ -88,11 +89,15 @@ class NativeBridge {
     }
 
     private void requestPermission(NativeBridgeMediaType mediaType) {
+        Log.d("Ryan123", "requestPermission 0");
         // TODO get return value
         Context context = pagecallWebView.getContext();
+        Log.d("Ryan123", "requestPermission 1");
         switch (mediaType.mediaType) {
             case "audio": {
+                Log.d("Ryan123", "requestPermission 2");
                 ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
+                Log.d("Ryan123", "requestPermission 3");
                 return;
             }
             case "video": {
@@ -159,6 +164,7 @@ class NativeBridge {
 
     @JavascriptInterface
     public void postMessage(String message) {
+        Log.d("Ryan123", "######### " + message);
         JSONObject jsonObject = safeParseJSON(message);
         this.bridgeMessageConsumers.forEach(consumer -> {
             consumer.accept(jsonObject);
@@ -224,18 +230,26 @@ class NativeBridge {
                     this.loaded = true;
                     return;
                 case INITIALIZE:
+                    Log.d("Ryan123", "INITIALIZE 0");
                     if (audioManager != null) {
+                        Log.d("Ryan123", "INITIALIZE 1");
                         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
                     } else {
+                        Log.d("Ryan123", "INITIALIZE 2");
                         respondEmpty.accept(new PagecallError("Missing audioManager"));
                     }
                     if (mediaController != null) {
+                        Log.d("Ryan123", "INITIALIZE 3");
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
                     }
+                    Log.d("Ryan123", "INITIALIZE 4");
                     MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
+                    Log.d("Ryan123", "INITIALIZE 5");
                     this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    Log.d("Ryan123", "INITIALIZE 6");
                     this.synchronizePauseState();
+                    Log.d("Ryan123", "INITIALIZE 7");
                     respondEmpty.accept(null);
                     return;
 
@@ -244,19 +258,29 @@ class NativeBridge {
                     return;
 
                 case REQUEST_PERMISSION:
+                    Log.d("Ryan123", "REQUEST_PERMISSION 0");
                     requestPermission(new NativeBridgeMediaType(payloadData));
+                    Log.d("Ryan123", "REQUEST_PERMISSION 1");
                     respondBoolean.accept(null, true);
                     return;
 
                 case GET_AUDIO_DEVICES:
+                    Log.d("Ryan123", "GET_AUDIO_DEVICES 0");
                     if (audioManager != null) {
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 1");
                         AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 2");
                         AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 3");
                         AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 4");
                         System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 5");
                         System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 6");
 
                         MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 7");
 
                         /**
                          * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
@@ -264,10 +288,12 @@ class NativeBridge {
                          * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
                          */
                         MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES 8");
 
                         respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
 
                     } else {
+                        Log.d("Ryan123", "GET_AUDIO_DEVICES ELSE");
                         respondEmpty.accept(new PagecallError("Missing audioManager"));
                     }
                     return;
@@ -294,18 +320,25 @@ class NativeBridge {
                  * Below requires mediaController to exist
                  */
                 case START:
+                    Log.d("Ryan123", "START 0");
                     if (mediaController == null) {
+                        Log.d("Ryan123", "START 1");
                         respondEmpty.accept(new PagecallError("Missing mediaController"));
+                        Log.d("Ryan123", "START 2");
                     } else {
+                        Log.d("Ryan123", "START 3");
                         mediaController.start(new MediaInfraController.AudioProducerCallback() {
                             @Override
                             public void onResult(Exception error) {
                                 respondEmpty.accept(error);
                             }
                         });
+                        Log.d("Ryan123", "START 4");
                         this.synchronizePauseState();
+                        Log.d("Ryan123", "START 5");
                         // emit decibel after entering
                         AudioRecordManager.startEmitVolumeSchedule(context, emitter);
+                        Log.d("Ryan123", "START 6");
                     }
                     return;
                 case DISPOSE:

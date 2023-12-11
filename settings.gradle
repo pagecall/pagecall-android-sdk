@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 rootProject.name = "PagecallAndroidSample"
 include ':sample'
 include ':pagecall'
+include ':sample_x200'

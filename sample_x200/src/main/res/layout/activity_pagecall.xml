@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pagecall_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.pagecall.PagecallWebView
+        android:id="@+id/pagecall_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Welcome to Pagecall Activity" />
+
+    <!-- 추가적인 레이아웃 요소들을 여기에 배치할 수 있습니다. -->
+
+</LinearLayout>
