@@ -1,6 +1,7 @@
 package com.example.sample_x200
 
 import android.os.Bundle
+import android.util.Log
 import android.webkit.WebResourceError
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ class PagecallActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pagecall)
+        PagecallWebView.setWebContentsDebuggingEnabled(true)
 
         initWebView();
     }
@@ -20,20 +22,19 @@ class PagecallActivity : AppCompatActivity() {
         pagecallView.load("6572e3bc435814217603baa1", "", PagecallWebView.PagecallMode.MEET, HashMap<String, String>().apply {
             put("chime", "0")
             put("logLevel", "1")
-            put("build", "ryan231208-mi-logs")
         })
 
         pagecallView.setListener(object : PagecallWebView.Listener {
             override fun onLoaded() {
-                TODO("Not yet implemented")
+                Log.d("Ryan123", "loaded");
             }
 
             override fun onMessage(message: String?) {
-                TODO("Not yet implemented")
+                Log.d("Ryan123", "onMessage")
             }
 
             override fun onError(error: WebResourceError?) {
-                TODO("Not yet implemented")
+                Log.e("Ryan123", error.toString() + " " + error?.description);
             }
             override fun onTerminated(reason: TerminationReason?) {
                 finish()
