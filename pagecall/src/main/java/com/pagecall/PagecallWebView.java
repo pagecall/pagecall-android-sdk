@@ -1,5 +1,6 @@
 package com.pagecall;
 
+import static org.webrtc.voiceengine.BuildInfo.getDeviceModel;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -242,6 +243,10 @@ final public class PagecallWebView extends WebView {
             public void onPageFinished(WebView view, String url) {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     // Do not evaluate native code under android 8. It will use web sdk.
+                    return;
+                }
+                if (getDeviceModel().equals("SM-X200")) {
+                    // Do not evaluate native code for "SM-X200". It will use web sdk.
                     return;
                 }
                 if (isUrlContainsPagecallUrl(url)) {
