@@ -1,5 +1,6 @@
 package com.example.sample_x200
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.webkit.WebResourceError
@@ -9,20 +10,27 @@ import com.pagecall.PagecallWebView
 import com.pagecall.TerminationReason
 
 class PagecallActivity : AppCompatActivity() {
+    private var url: String? = null
     private lateinit var pagecallView: PagecallWebView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pagecall)
         PagecallWebView.setWebContentsDebuggingEnabled(true)
 
-        initWebView();
+        url = intent.getStringExtra("URL")
+        initWebView()
     }
     private fun initWebView() {
         pagecallView = findViewById<PagecallWebView>(R.id.pagecall_view)
-        pagecallView.load("6572e3bc435814217603baa1", "", PagecallWebView.PagecallMode.MEET, HashMap<String, String>().apply {
-            put("chime", "0")
-            put("logLevel", "1")
-        })
+
+        val uri = Uri.parse(url)
+        val roomId = uri.getQueryParameter("room_id")
+        if (roomId != null) {
+            pagecallView.load(roomId, "", PagecallWebView.PagecallMode.MEET, HashMap<String, String>().apply {
+                put("chime", "0")
+                put("logLevel", "1")
+            })
+        }
 
         pagecallView.setListener(object : PagecallWebView.Listener {
             override fun onLoaded() {
