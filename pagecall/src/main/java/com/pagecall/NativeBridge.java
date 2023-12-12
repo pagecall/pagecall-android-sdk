@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 class NativeBridge {
     private PagecallWebView pagecallWebView;
     private MediaController mediaController;
-    private Context context;
     private WebViewEmitter emitter;
 
     private HashMap<String, Consumer<String>> subscribers;
@@ -89,14 +88,14 @@ class NativeBridge {
 
     private void requestPermission(NativeBridgeMediaType mediaType) {
         // TODO get return value
-        Context context = pagecallWebView.getContext();
+        Activity activity = pagecallWebView.getActivity();
         switch (mediaType.mediaType) {
             case "audio": {
-                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION);
                 return;
             }
             case "video": {
-                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.CAMERA}, REQUEST_VIDEO_PERMISSION);
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_VIDEO_PERMISSION);
                 return;
             }
             default: {
@@ -105,8 +104,12 @@ class NativeBridge {
         }
     }
 
+    private Context getContext() {
+        return pagecallWebView.getContext();
+    }
+
     private Boolean getAudioStatus(Boolean audio) {
-        Context context = pagecallWebView.getContext();
+        Context context = getContext();
         if (audio != null && audio) {
             int status = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO);
             switch (status) {
@@ -139,7 +142,6 @@ class NativeBridge {
 
     public NativeBridge(PagecallWebView webView, HashMap<String, Consumer<String>> subscribers) {
         this.pagecallWebView = webView;
-        this.context = webView.getContext();
         this.emitter = new WebViewEmitter(this.pagecallWebView);
         this.subscribers = subscribers;
     }
@@ -216,7 +218,7 @@ class NativeBridge {
         final Consumer<Exception> respondEmpty = (error) -> {
             respond.accept(error, null);
         };
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
 
         try {
             switch (bridgeAction) {
@@ -234,7 +236,7 @@ class NativeBridge {
                         return;
                     }
                     MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
-                    this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    this.mediaController = new MediaInfraController(emitter, initialPayload, getContext());
                     this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
@@ -273,7 +275,7 @@ class NativeBridge {
                     return;
 
                 case REQUEST_AUDIO_VOLUME:
-                    double volume = AudioRecordManager.getMicrophoneVolume(context);
+                    double volume = AudioRecordManager.getMicrophoneVolume(getContext());
                     respondNumber.accept(null, volume);
                     return;
 
@@ -305,7 +307,7 @@ class NativeBridge {
                         });
                         this.synchronizePauseState();
                         // emit decibel after entering
-                        AudioRecordManager.startEmitVolumeSchedule(context, emitter);
+                        AudioRecordManager.startEmitVolumeSchedule(getContext(), emitter);
                     }
                     return;
                 case DISPOSE:
