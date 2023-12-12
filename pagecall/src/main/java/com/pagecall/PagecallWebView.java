@@ -349,6 +349,11 @@ final public class PagecallWebView extends WebView {
     }
 
     @Override
+    public void destroy() {
+        evaluateJavascript("Pagecall.terminate()", value -> super.destroy());
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         destroyBridge();
