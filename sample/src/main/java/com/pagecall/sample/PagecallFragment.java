@@ -50,7 +50,7 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
             }
         });
         webViewContainer = view.findViewById(R.id.webview_container);
-        webView = new PagecallWebView(view.getContext());
+        webView = new PagecallWebView(this.getActivity());
         webView.setListener(this);
         webView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,

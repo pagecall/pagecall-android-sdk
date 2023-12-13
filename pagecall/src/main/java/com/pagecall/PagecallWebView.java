@@ -1,6 +1,7 @@
 package com.pagecall;
 
 import static org.webrtc.voiceengine.BuildInfo.getDeviceModel;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -31,6 +32,10 @@ import java.util.function.Consumer;
 
 // TODO: package private
 final public class PagecallWebView extends WebView {
+
+    public Activity getActivity() {
+        return activity;
+    }
 
     public interface Listener {
         void onLoaded();
@@ -82,23 +87,23 @@ final public class PagecallWebView extends WebView {
     private String[] pagecallUrls = null;
     private NativeBridge nativeBridge = null;
 
-    private Context context;
+    private Activity activity;
     private Boolean isChime = false;
 
-    public PagecallWebView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public PagecallWebView(Activity activity, AttributeSet attrs) {
+        super(activity, attrs);
         if (android.os.Build.VERSION.SDK_INT >= 24) {
-            init(context);
+            init(activity);
         }
-        this.context = context;
+        this.activity = activity;
     }
 
-    public PagecallWebView(Context context) {
-        super(context);
+    public PagecallWebView(Activity activity) {
+        super(activity);
         if (android.os.Build.VERSION.SDK_INT >= 24) {
-            init(context);
+            init(activity);
         }
-        this.context = context;
+        this.activity = activity;
     }
 
     @Override
@@ -114,7 +119,7 @@ final public class PagecallWebView extends WebView {
     public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
         if (!this.isChime) return false;
         // chime일 때만 아래 코드를 실행
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_UP:
                 audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
