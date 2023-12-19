@@ -217,6 +217,15 @@ final public class PagecallWebView extends WebView {
                             audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
                         } else {
                             // MI
+                            try {
+                                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                                audioManager.setBluetoothScoOn(true);
+                                audioManager.startBluetoothSco();
+                                // 1. Should it be stopped later?
+                                // 2. Should it be called on Chime?
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }));
                     break;
