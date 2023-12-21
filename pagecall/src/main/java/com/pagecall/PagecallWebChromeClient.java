@@ -1,22 +1,33 @@
 package com.pagecall;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class PagecallWebChromeClient extends WebChromeClient {
 
     public final static int IMAGE_SELECTOR_REQ = 1;
 
+    private Uri cameraFileUri = null;
     private PagecallWebView webView;
 
     private ValueCallback filePathCallback;
@@ -30,43 +41,99 @@ public class PagecallWebChromeClient extends WebChromeClient {
         request.grant(request.getResources());
     }
 
-    @Override
-    public boolean onShowFileChooser(WebView webView, ValueCallback filePathCallback, FileChooserParams fileChooserParams) {
+    private File createImageFile(Context context) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+    }
+
+    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                     WebChromeClient.FileChooserParams fileChooserParams) {
+        // existing setup
         String[] acceptTypes = fileChooserParams.getAcceptTypes();
         boolean allowMultiple = fileChooserParams.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE;
-
         this.filePathCallback = filePathCallback;
         ArrayList<Parcelable> extraIntents = new ArrayList<>();
-        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+
+        // camera intent
+        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (captureIntent.resolveActivity(webView.getContext().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile(webView.getContext());
+            } catch (IOException ex) {
+                // Error occurred while creating the file
+            }
+            if (photoFile != null) {
+                cameraFileUri = FileProvider.getUriForFile(webView.getContext(),
+                        "your.package.name.fileprovider", photoFile);
+                captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraFileUri);
+                extraIntents.add(captureIntent);
+            }
+        }
+
+        // file selection intent
         Intent fileSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
         fileSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-        fileSelectionIntent.setType("*/*"); // default acceptable MimeType
+        fileSelectionIntent.setType("*/*");
         fileSelectionIntent.putExtra(Intent.EXTRA_MIME_TYPES, getAcceptedMimeType(acceptTypes));
         fileSelectionIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+
+        // chooser intent
+        Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, fileSelectionIntent);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
 
-        ((Activity) this.webView.getContext()).startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
+        // start activity
+        ((Activity) webView.getContext()).startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
 
         return true;
     }
 
+
     public void handleActivityResult(final int requestCode, final int resultCode, final Intent intent) {
         if (requestCode == IMAGE_SELECTOR_REQ) {
             if (resultCode == Activity.RESULT_OK) {
-                if (intent != null && filePathCallback != null) {
-                    filePathCallback.onReceiveValue(getSelectedFiles(intent, resultCode));
+                Uri[] results = null;
+
+                // Check if response is from camera
+                if (cameraFileUri != null) {
+                    results = new Uri[]{cameraFileUri};
+                    cameraFileUri = null;
+                }
+                // Response from file chooser
+                else if (intent != null) {
+                    String dataString = intent.getDataString();
+                    if (dataString != null) {
+                        results = new Uri[]{Uri.parse(dataString)};
+                    } else if (intent.getClipData() != null) {
+                        final int numSelectedFiles = intent.getClipData().getItemCount();
+                        results = new Uri[numSelectedFiles];
+                        for (int i = 0; i < numSelectedFiles; i++) {
+                            results[i] = intent.getClipData().getItemAt(i).getUri();
+                        }
+                    }
+                }
+
+                if (filePathCallback != null) {
+                    filePathCallback.onReceiveValue(results);
                     filePathCallback = null;
                 }
-            }
-            else {
-                // Occurred if pressed back button without selecting files
+            } else {
                 if (filePathCallback != null) {
                     filePathCallback.onReceiveValue(null);
+                    filePathCallback = null;
                 }
             }
         }
     }
+
 
     private String[] getAcceptedMimeType(String[] types) {
         if (noAcceptTypesSet(types)) {
