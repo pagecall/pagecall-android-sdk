@@ -1,6 +1,8 @@
 package com.pagecall;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -155,15 +157,21 @@ class MediaInfraController extends MediaController {
 
     @Override
     public void dispose() {
-        if (producer != null) {
-            producer.close();
-        }
-        if (sendTransport != null) {
-            sendTransport.dispose(); // TODO close or dispose?
-        }
-        if (recvTransport != null) {
-            recvTransport.dispose();
-        }
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (producer != null) {
+                    producer.close();
+                }
+                if (sendTransport != null) {
+                    sendTransport.dispose(); // TODO close or dispose?
+                }
+                if (recvTransport != null) {
+                    recvTransport.dispose();
+                }
+            }
+        });
     }
 
     private SendTransport.Listener sendTransportListener = new SendTransport.Listener() {
