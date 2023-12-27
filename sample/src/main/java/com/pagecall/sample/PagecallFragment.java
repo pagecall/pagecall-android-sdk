@@ -120,6 +120,7 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
         if (reason == TerminationReason.OTHER) {
             Log.d("SampleApp", "Terminated with other reason (" + reason.getOtherReason() + ")");
         }
+        NavHostFragment.findNavController(PagecallFragment.this).navigate(R.id.action_pagecallFragment_to_homeFragment);
     }
 
     @Override
