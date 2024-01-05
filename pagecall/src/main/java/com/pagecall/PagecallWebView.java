@@ -1,5 +1,6 @@
 package com.pagecall;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -187,6 +188,10 @@ final public class PagecallWebView extends WebView {
     private PagecallWebChromeClient webChromeClient;
 
     protected void init(Context context) {
+        // Check if the context is ActivityContext
+        if (!(context instanceof Activity)) {
+            throw new IllegalArgumentException("Provided context is not an Activity context.");
+        }
         if (this.pagecallUrls == null) {
             pagecallUrls = defaultPagecallUrls;
         }
