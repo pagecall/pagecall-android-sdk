@@ -8,6 +8,7 @@ enum NativeBridgeAction {
     DISPOSE("dispose"),
     START("start"),
     GET_PERMISSIONS("getPermissions"),
+    GET_MEDIA_STATS("getMediaStats"),
     REQUEST_PERMISSION("requestPermission"),
     PAUSE_AUDIO("pauseAudio"),
     RESUME_AUDIO("resumeAudio"),

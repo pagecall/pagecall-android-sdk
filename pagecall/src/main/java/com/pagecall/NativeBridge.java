@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mediasoup.droid.MediasoupException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -271,6 +272,22 @@ class NativeBridge {
                         respondEmpty.accept(new PagecallError("Missing audioManager"));
                     }
                     return;
+
+                case GET_MEDIA_STATS:
+                    if (mediaController instanceof MediaInfraController) {
+                        try {
+                            JSONObject mediaStats = ((MediaInfraController) mediaController).getMediaStats();
+                            respondObject.accept(null, mediaStats);
+                        } catch (MediasoupException e) {
+                            respondEmpty.accept(new PagecallError("[getMediaStats] MediasoupException: " + e.getMessage()));
+                        } catch (JSONException e) {
+                            respondEmpty.accept(new PagecallError("[getMediaStats] JSONException: " + e.getMessage()));
+                        } catch (PagecallError e) {
+                            respondEmpty.accept(e);
+                        }
+                    } else {
+                        respondEmpty.accept(new PagecallError("ChimeController does not have getMediaStats"));
+                    }
 
                 case REQUEST_AUDIO_VOLUME:
                     double volume = AudioRecordManager.getMicrophoneVolume(context);

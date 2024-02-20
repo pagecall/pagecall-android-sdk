@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mediasoup.droid.Consumer;
@@ -96,6 +97,22 @@ class MediaInfraController extends MediaController {
                 .createPeerConnectionFactory();
     }
 
+    public JSONObject getMediaStats() throws MediasoupException, JSONException, PagecallError {
+        String jsonString = sendTransport.getStats();
+        JSONArray jsonArray = new JSONArray(jsonString);
+        JSONObject result = new JSONObject();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject currentItem = jsonArray.getJSONObject(i);
+
+            if ("remote-inbound-rtp".equals(currentItem.getString("type"))) {
+                result.put("roundTripTime", currentItem.getDouble("roundTripTime") * 1000.0);
+                result.put("packetsLost", currentItem.getInt("packetsLost"));
+                return result;
+            }
+        }
+        throw new PagecallError("no remote-inbound-rtp");
+    }
     @Override
     public Boolean pauseAudio() {
         if (producer != null) {
