@@ -3,6 +3,7 @@ package com.pagecall;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.MutableContextWrapper;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -188,9 +189,9 @@ final public class PagecallWebView extends WebView {
     private PagecallWebChromeClient webChromeClient;
 
     protected void init(Context context) {
-        // Check if the context is ActivityContext
-        if (!(context instanceof Activity)) {
-            throw new IllegalArgumentException("Provided context is not an Activity context.");
+        // Check if the context is ActivityContext or MutableContextWrapper
+        if (!(context instanceof Activity) && !(context instanceof MutableContextWrapper)) {
+            throw new IllegalArgumentException("The provided context is neither an Activity nor a MutableContextWrapper.");
         }
         if (this.pagecallUrls == null) {
             pagecallUrls = defaultPagecallUrls;
