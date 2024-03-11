@@ -21,6 +21,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.pagecall.PagecallWebView;
 import com.pagecall.TerminationReason;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 public class PagecallFragment extends Fragment implements PagecallWebView.Listener {
@@ -110,6 +112,11 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
     @Override
     public void onMessage(String message) {
         Log.d("SampleApp", "Message received: " + message);
+    }
+
+    @Override
+    public void onEvent(JSONObject payload) {
+        Log.d("SampleApp", "Event received: " + payload.toString());
     }
 
     @Override
