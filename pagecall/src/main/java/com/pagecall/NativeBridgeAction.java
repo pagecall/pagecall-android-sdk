@@ -4,6 +4,7 @@ enum NativeBridgeAction {
     LOADED("loaded"),
     TERMINATED("terminated"),
     MESSAGE("message"),
+    EVENT("event"),
     INITIALIZE("initialize"),
     DISPOSE("dispose"),
     START("start"),

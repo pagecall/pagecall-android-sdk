@@ -34,10 +34,11 @@ import java.util.function.Consumer;
 final public class PagecallWebView extends WebView {
 
     public interface Listener {
-        void onLoaded();
-        void onMessage(String message);
-        void onTerminated(TerminationReason reason);
-        void onError(WebResourceError error);
+        default void onLoaded() {};
+        default void onMessage(String message) {};
+        default void onEvent(JSONObject payload) {};
+        default void onTerminated(TerminationReason reason) {};
+        default void onError(WebResourceError error) {};
     }
 
     public enum PagecallMode {
@@ -246,6 +247,11 @@ final public class PagecallWebView extends WebView {
                     JSONObject payload = jsonMessage.optJSONObject("payload");
                     String message = payload.optString("message");
                     this.listener.onMessage(message);
+                    break;
+                }
+                case EVENT: {
+                    JSONObject payload = jsonMessage.optJSONObject("payload");
+                    this.listener.onEvent(payload);
                     break;
                 }
             }
