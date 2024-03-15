@@ -3,6 +3,7 @@ package com.pagecall;
 import android.util.Log;
 import android.util.Pair;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,11 +60,11 @@ class WebViewEmitter {
         rawEmit(eventName.getValue(), message);
     }
 
-    public void emit(NativeBridgeEvent eventName, JSONObject json) {
+    public void emit(NativeBridgeEvent eventName, Object json) {
         jsonEmit(eventName.getValue(), json, null);
     }
 
-    public void request(NativeBridgeRequest eventName, JSONObject json, Callback callback) {
+    public void request(NativeBridgeRequest eventName, Object json, Callback callback) {
         jsonEmit(eventName.getValue(), json, callback);
     }
 
@@ -79,7 +80,11 @@ class WebViewEmitter {
         return result.second;
     }
 
-    private void jsonEmit(String eventName, JSONObject json, Callback callback) {
+    private void jsonEmit(String eventName, Object json, Callback callback) {
+        if (!(json instanceof JSONObject || json instanceof JSONArray)) {
+            throw new IllegalArgumentException("Unsupported JSON type");
+        }
+
         String stringifiedJson;
         try {
             stringifiedJson = json.toString();
