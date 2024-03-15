@@ -17,6 +17,8 @@ import com.google.gson.annotations.SerializedName;
 
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +75,7 @@ public class ChimeController extends MediaController {
     private ChimeAudioVideoObserver audioVideoObserver;
     private ChimeMetricsObserver metricsObserver;
     private ChimeDeviceChangeObserver deviceChangeObserver;
+    private boolean isAudioSessionStarted = false;
 
     ChimeController(WebViewEmitter emitter, ChimeInitialPayload initialPayload, Context context) {
         this.emitter = emitter;
@@ -83,9 +86,9 @@ public class ChimeController extends MediaController {
             );
             this.meetingSession = new DefaultMeetingSession(configuration, new ConsoleLogger(LogLevel.VERBOSE), context);
             this.realtimeObserver = new ChimeRealtimeObserver(this.emitter, initialPayload.meetingInfo.attendeeResponse.attendee.getAttendeeId());
-            this.audioVideoObserver = new ChimeAudioVideoObserver(this.emitter);
+            this.audioVideoObserver = new ChimeAudioVideoObserver(this.emitter, this);
             this.metricsObserver = new ChimeMetricsObserver(this.emitter);
-            this.deviceChangeObserver = new ChimeDeviceChangeObserver(this.emitter, this.meetingSession);
+            this.deviceChangeObserver = new ChimeDeviceChangeObserver(this.emitter, this, this.meetingSession);
 
             this.meetingSession.getAudioVideo().addRealtimeObserver(this.realtimeObserver);
             this.meetingSession.getAudioVideo().addAudioVideoObserver(this.audioVideoObserver);
@@ -95,6 +98,14 @@ public class ChimeController extends MediaController {
             Log.e("tommy", error.getStackTrace().toString());
             Log.e("tommy", error.toString());
         }
+    }
+
+    public void setAudioSessionStarted(boolean isStarted) {
+        this.isAudioSessionStarted = isStarted;
+    }
+
+    public boolean getAudioSessionStarted() {
+        return this.isAudioSessionStarted;
     }
 
     public void setAudioDevice(String deviceLabel) throws PagecallError {
@@ -108,8 +119,21 @@ public class ChimeController extends MediaController {
     }
 
     public MediaDeviceInfo[] getAudioDevices() {
+        boolean isAudioStarted = this.getAudioSessionStarted();
         List<MediaDevice> audioDeviceList = meetingSession.getAudioVideo().listAudioDevices();
-        return audioDeviceList.stream().map(device -> new MediaDeviceInfo(device.getLabel(), "DefaultGroupId", MediaDeviceKind.AUDIO_INPUT, device.getLabel())).toArray(MediaDeviceInfo[]::new);
+        MediaDeviceInfo[] sortedDeviceInfoList = audioDeviceList.stream()
+                .sorted(Comparator.comparingInt(MediaDevice::getOrder))
+                .map(device -> new MediaDeviceInfo(device.getLabel(), "DefaultGroupId", MediaDeviceKind.AUDIO_INPUT, device.getLabel()))
+                .toArray(MediaDeviceInfo[]::new);
+        if (sortedDeviceInfoList.length == 0) {
+            return new MediaDeviceInfo[0];
+        } else if (isAudioStarted) {
+            return sortedDeviceInfoList;
+        } else {
+            // 오디오 세션이 시작되지 않으면 임의로 오디오 장치를 선택할 수 없기에 현재 활성화된 장치 하나만 보여준다
+            // reference: https://aws.github.io/amazon-chime-sdk-android/amazon-chime-sdk/com.amazonaws.services.chime.sdk.meetings.device/-device-controller/choose-audio-device.html
+            return Arrays.copyOfRange(sortedDeviceInfoList, 0, 1);
+        }
     }
 
     @Override
@@ -142,6 +166,7 @@ public class ChimeController extends MediaController {
 
     @Override
     public void dispose() {
+        this.setAudioSessionStarted(false);
         meetingSession.getAudioVideo().stop();
     }
 }

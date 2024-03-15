@@ -14,10 +14,24 @@ import org.json.JSONObject;
 import java.util.List;
 
 public class ChimeAudioVideoObserver implements AudioVideoObserver {
-    public WebViewEmitter emitter;
+    private WebViewEmitter emitter;
+    private ChimeController chimeController;
 
-    ChimeAudioVideoObserver(WebViewEmitter emitter) {
+    ChimeAudioVideoObserver(WebViewEmitter emitter, ChimeController chimeController) {
         this.emitter = emitter;
+        this.chimeController = chimeController;
+    }
+
+    private void emitAudioDeviceList() {
+        // audio가 start, stop 될 때마다 장치 리스트를 업데이트해준다.
+        // (stop 상태에서는 활성화된 장치 하나만 보내줘야함. getAudioDevice() 코멘트 참고.)
+        try {
+            MediaDeviceInfo[] mediaDeviceInfoList = chimeController.getAudioDevices();
+            this.emitter.emit(NativeBridgeEvent.AUDIO_DEVICES, MediaDeviceInfo.convertToJSONArray(mediaDeviceInfoList));
+        } catch (Exception error) {
+            error.printStackTrace();
+            Log.e("ChimeDeviceChangeObserver", "Error creating JSON object.");
+        }
     }
 
     @Override
@@ -26,6 +40,7 @@ public class ChimeAudioVideoObserver implements AudioVideoObserver {
 
     @Override
     public void onAudioSessionStarted(boolean reconnecting) {
+        this.chimeController.setAudioSessionStarted(true);
         JSONObject json = new JSONObject();
         try {
             json.put("reconnecting", reconnecting);
@@ -34,6 +49,7 @@ public class ChimeAudioVideoObserver implements AudioVideoObserver {
             Log.e("ChimeAudioVideoObserver", "Error creating JSON object.");
         }
         this.emitter.emit(NativeBridgeEvent.CONNECTED, json);
+        this.emitAudioDeviceList();
     }
 
     @Override
@@ -42,6 +58,7 @@ public class ChimeAudioVideoObserver implements AudioVideoObserver {
 
     @Override
     public void onAudioSessionStopped(MeetingSessionStatus sessionStatus) {
+        this.chimeController.setAudioSessionStarted(false);
         JSONObject json = new JSONObject();
         try {
             json.put("statusCode", sessionStatus.getStatusCode().getValue());
@@ -50,6 +67,7 @@ public class ChimeAudioVideoObserver implements AudioVideoObserver {
             Log.e("ChimeAudioVideoObserver", "Error creating JSON object.");
         }
         this.emitter.emit(NativeBridgeEvent.DISCONNECTED, json);
+        this.emitAudioDeviceList();
     }
 
     @Override
