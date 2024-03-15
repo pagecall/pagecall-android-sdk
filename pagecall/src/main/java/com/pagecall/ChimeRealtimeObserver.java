@@ -13,8 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ChimeRealtimeObserver implements RealtimeObserver {
-    public WebViewEmitter emitter;
-    public String myAttendeeId;
+    private WebViewEmitter emitter;
+    private String myAttendeeId;
 
     ChimeRealtimeObserver(WebViewEmitter emitter, String myAttendeeId) {
         this.emitter = emitter;
