@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-
 class NativeBridge {
     private PagecallWebView pagecallWebView;
     private MediaController mediaController;
@@ -234,12 +233,16 @@ class NativeBridge {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
                     }
-                    MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
-                    this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    try {
+                        MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
+                        this.mediaController = new MediaInfraController(emitter, initialPayload, context);
+                    } catch (Exception error) {
+                        ChimeController.ChimeInitialPayload initialPayload = new ChimeController.ChimeInitialPayload(payloadData);
+                        this.mediaController = new ChimeController(emitter, initialPayload, context);
+                    }
                     this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
-
                 case GET_PERMISSIONS:
                     respondObject.accept(null, getPermissions(payloadData).toJSON());
                     return;
@@ -250,26 +253,33 @@ class NativeBridge {
                     return;
 
                 case GET_AUDIO_DEVICES:
-                    if (audioManager != null) {
-                        AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
-                        AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-                        AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
-                        System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
-                        System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
+                    if (this.mediaController instanceof MediaInfraController) {
+                        if ( audioManager != null) {
+                            AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+                            AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+                            AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
+                            System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
+                            System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
 
-                        MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
+                            MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
 
-                        /**
-                         * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
-                         * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
-                         * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
-                         */
-                        MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
+                            /**
+                             * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
+                             * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
+                             * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
+                             */
+                            MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
 
-                        respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
-
+                            respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
+                        } else {
+                            respondEmpty.accept(new PagecallError("Missing audioManager"));
+                        }
+                    } else if (this.mediaController instanceof ChimeController) {
+                        ChimeController chimeController = (ChimeController) this.mediaController;
+                        MediaDeviceInfo[] mediaDeviceInfoList = chimeController.getAudioDevices();
+                        respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(mediaDeviceInfoList));
                     } else {
-                        respondEmpty.accept(new PagecallError("Missing audioManager"));
+                        respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
                     }
                     return;
 
@@ -333,8 +343,20 @@ class NativeBridge {
                     respondEmpty.accept(null);
                     return;
                 case SET_AUDIO_DEVICE:
-                    // No op for MediaInfraController
-                    respondEmpty.accept(null);
+                    if (mediaController instanceof MediaInfraController) {
+                        // No op for MediaInfraController
+                        respondEmpty.accept(null);
+                    } else if (mediaController instanceof ChimeController) {
+                        ChimeController chimeController = (ChimeController) mediaController;
+                        try {
+                            chimeController.setAudioDevice(payloadData.getString("deviceId"));
+                        } catch(PagecallError error) {
+                            respondEmpty.accept(error);
+                        }
+                    } else {
+                        // MediaController is uninitialized yet
+                        respondEmpty.accept(null);
+                    }
                     return;
                 case CONSUME:
                     if (!(mediaController instanceof MediaInfraController)) {
