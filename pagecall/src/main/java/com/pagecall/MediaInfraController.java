@@ -168,10 +168,6 @@ class MediaInfraController extends MediaController {
         });
     }
 
-    interface AudioProducerCallback {
-        void onResult(Exception error);
-    }
-
     @Override
     public void dispose() {
         Handler mainHandler = new Handler(Looper.getMainLooper());
