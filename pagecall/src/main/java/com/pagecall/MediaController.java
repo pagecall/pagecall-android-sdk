@@ -5,7 +5,11 @@ abstract class MediaController {
 
     public abstract Boolean resumeAudio();
 
-    public abstract void start(MediaInfraController.AudioProducerCallback callback);
+    public abstract void start(AudioProducerCallback callback);
 
     public abstract void dispose();
+
+    interface AudioProducerCallback {
+        void onResult(Exception error);
+    }
 }
