@@ -32,7 +32,7 @@ public class ChimeMetricsObserver implements MetricsObserver {
                 this.emitter.emit(NativeBridgeEvent.MEDIA_STAT, mediaStat);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e("MiController", "Error creating JSON object.");
+                Log.e("ChimeController", "Error creating JSON object.");
             }
         }
     }
