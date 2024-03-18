@@ -64,7 +64,9 @@ final public class PagecallWebView extends WebView {
         public String getBaseURLString() {
             switch(this.value) {
                 case "meet":
-                    return "https://app.pagecall.com/meet";
+//                    return "https://app.pagecall.com/meet";
+//                    return "https://app-stg.pagecall.com/meet";
+                    return "http://192.168.50.193:3000/meet";
                 case "replay":
                     return "https://app.pagecall.com/replay";
                 default:

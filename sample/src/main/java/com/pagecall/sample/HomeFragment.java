@@ -31,6 +31,9 @@ public class HomeFragment extends Fragment {
         roomIdInput = view.findViewById(R.id.room_id_input);
         accessTokenInput = view.findViewById(R.id.access_token_input);
         queryInput = view.findViewById(R.id.query_input);
+        roomIdInput.setText("65f2abebd8de5b3269c0e6b2");
+        accessTokenInput.setText("lPamRwagouVXtjMsDidjwkzZXLgC1MoV");
+        queryInput.setText("logLevel=0");
 
         view.findViewById(R.id.meet_button).setOnClickListener(new View.OnClickListener() {
             @Override
