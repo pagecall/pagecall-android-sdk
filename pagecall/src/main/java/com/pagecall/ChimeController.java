@@ -79,25 +79,20 @@ public class ChimeController extends MediaController {
 
     ChimeController(WebViewEmitter emitter, ChimeInitialPayload initialPayload, Context context) {
         this.emitter = emitter;
-        try {
-            MeetingSessionConfiguration configuration = new MeetingSessionConfiguration(
-                    new CreateMeetingResponse(initialPayload.meetingInfo.meetingResponse.meeting),
-                    new CreateAttendeeResponse(initialPayload.meetingInfo.attendeeResponse.attendee)
-            );
-            this.meetingSession = new DefaultMeetingSession(configuration, new ConsoleLogger(LogLevel.VERBOSE), context);
-            this.realtimeObserver = new ChimeRealtimeObserver(this.emitter, initialPayload.meetingInfo.attendeeResponse.attendee.getAttendeeId());
-            this.audioVideoObserver = new ChimeAudioVideoObserver(this.emitter, this);
-            this.metricsObserver = new ChimeMetricsObserver(this.emitter);
-            this.deviceChangeObserver = new ChimeDeviceChangeObserver(this.emitter, this, this.meetingSession);
+        MeetingSessionConfiguration configuration = new MeetingSessionConfiguration(
+                new CreateMeetingResponse(initialPayload.meetingInfo.meetingResponse.meeting),
+                new CreateAttendeeResponse(initialPayload.meetingInfo.attendeeResponse.attendee)
+        );
+        this.meetingSession = new DefaultMeetingSession(configuration, new ConsoleLogger(LogLevel.VERBOSE), context);
+        this.realtimeObserver = new ChimeRealtimeObserver(this.emitter, initialPayload.meetingInfo.attendeeResponse.attendee.getAttendeeId());
+        this.audioVideoObserver = new ChimeAudioVideoObserver(this.emitter, this);
+        this.metricsObserver = new ChimeMetricsObserver(this.emitter);
+        this.deviceChangeObserver = new ChimeDeviceChangeObserver(this.emitter, this, this.meetingSession);
 
-            this.meetingSession.getAudioVideo().addRealtimeObserver(this.realtimeObserver);
-            this.meetingSession.getAudioVideo().addAudioVideoObserver(this.audioVideoObserver);
-            this.meetingSession.getAudioVideo().addMetricsObserver(this.metricsObserver);
-            this.meetingSession.getAudioVideo().addDeviceChangeObserver(this.deviceChangeObserver);
-        } catch (Exception error) {
-            Log.e("tommy", error.getStackTrace().toString());
-            Log.e("tommy", error.toString());
-        }
+        this.meetingSession.getAudioVideo().addRealtimeObserver(this.realtimeObserver);
+        this.meetingSession.getAudioVideo().addAudioVideoObserver(this.audioVideoObserver);
+        this.meetingSession.getAudioVideo().addMetricsObserver(this.metricsObserver);
+        this.meetingSession.getAudioVideo().addDeviceChangeObserver(this.deviceChangeObserver);
     }
 
     public void setAudioSessionStarted(boolean isStarted) {
