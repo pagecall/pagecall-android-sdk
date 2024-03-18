@@ -1,7 +1,6 @@
 package com.pagecall;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.amazonaws.services.chime.sdk.meetings.device.MediaDevice;
 import com.amazonaws.services.chime.sdk.meetings.session.Attendee;
@@ -115,7 +114,7 @@ public class ChimeController extends MediaController {
 
     public MediaDeviceInfo[] getAudioDevices() {
         boolean isAudioStarted = this.getAudioSessionStarted();
-        List<MediaDevice> audioDeviceList = meetingSession.getAudioVideo().listAudioDevices();
+        List<MediaDevice> audioDeviceList = this.meetingSession.getAudioVideo().listAudioDevices();
         MediaDeviceInfo[] sortedDeviceInfoList = audioDeviceList.stream()
                 .sorted(Comparator.comparingInt(MediaDevice::getOrder))
                 .map(device -> new MediaDeviceInfo(device.getLabel(), "DefaultGroupId", MediaDeviceKind.AUDIO_INPUT, device.getLabel()))
@@ -152,7 +151,7 @@ public class ChimeController extends MediaController {
     @Override
     public void start(AudioProducerCallback callback) {
         try {
-            meetingSession.getAudioVideo().start();
+            this.meetingSession.getAudioVideo().start();
             callback.onResult(null);
         } catch (Exception error) {
             callback.onResult(error);
@@ -162,6 +161,11 @@ public class ChimeController extends MediaController {
     @Override
     public void dispose() {
         this.setAudioSessionStarted(false);
-        meetingSession.getAudioVideo().stop();
+        this.meetingSession.getAudioVideo().stop();
+
+        this.meetingSession.getAudioVideo().removeRealtimeObserver(this.realtimeObserver);
+        this.meetingSession.getAudioVideo().removeAudioVideoObserver(this.audioVideoObserver);
+        this.meetingSession.getAudioVideo().removeMetricsObserver(this.metricsObserver);
+        this.meetingSession.getAudioVideo().removeDeviceChangeObserver(this.deviceChangeObserver);
     }
 }
