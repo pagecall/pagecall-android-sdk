@@ -178,9 +178,11 @@ class MediaInfraController extends MediaController {
                     producer.close();
                 }
                 if (sendTransport != null) {
-                    sendTransport.dispose(); // TODO close or dispose?
+                    sendTransport.close();
+                    sendTransport.dispose();
                 }
                 if (recvTransport != null) {
+                    recvTransport.close();
                     recvTransport.dispose();
                 }
             }
