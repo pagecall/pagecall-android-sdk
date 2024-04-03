@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class PagecallWebChromeClient extends WebChromeClient {
 
-    public final static int IMAGE_SELECTOR_REQ = 1;
+    public final static int IMAGE_SELECTOR_REQ = 911014;
 
     private PagecallWebView webView;
 
