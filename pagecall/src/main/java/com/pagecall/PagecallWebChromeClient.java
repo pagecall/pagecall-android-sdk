@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class PagecallWebChromeClient extends WebChromeClient {
 
-    public final static int IMAGE_SELECTOR_REQ = 1;
+    public final static int IMAGE_SELECTOR_REQ = 911014;
 
     private PagecallWebView webView;
 
@@ -31,7 +31,8 @@ public class PagecallWebChromeClient extends WebChromeClient {
     }
 
     @Override
-    public boolean onShowFileChooser(WebView webView, ValueCallback filePathCallback, FileChooserParams fileChooserParams) {
+    public boolean onShowFileChooser(WebView webView, ValueCallback filePathCallback,
+            FileChooserParams fileChooserParams) {
         String[] acceptTypes = fileChooserParams.getAcceptTypes();
         boolean allowMultiple = fileChooserParams.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE;
 
@@ -44,7 +45,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
         fileSelectionIntent.putExtra(Intent.EXTRA_MIME_TYPES, getAcceptedMimeType(acceptTypes));
         fileSelectionIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
         chooserIntent.putExtra(Intent.EXTRA_INTENT, fileSelectionIntent);
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[] {}));
 
         ((Activity) this.webView.getContext()).startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
 
@@ -58,8 +59,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
                     filePathCallback.onReceiveValue(getSelectedFiles(intent, resultCode));
                     filePathCallback = null;
                 }
-            }
-            else {
+            } else {
                 // Occurred if pressed back button without selecting files
                 if (filePathCallback != null) {
                     filePathCallback.onReceiveValue(null);
@@ -70,7 +70,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
 
     private String[] getAcceptedMimeType(String[] types) {
         if (noAcceptTypesSet(types)) {
-            return new String[]{"*/*"};
+            return new String[] { "*/*" };
         }
         String[] mimeTypes = new String[types.length];
         for (int i = 0; i < types.length; i++) {
@@ -78,7 +78,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
             // convert file extensions to mime types
             if (t.matches("\\.\\w+")) {
                 String mimeType = getMimeTypeFromExtension(t.replace(".", ""));
-                if(mimeType != null) {
+                if (mimeType != null) {
                     mimeTypes[i] = mimeType;
                 } else {
                     mimeTypes[i] = t;
@@ -91,7 +91,8 @@ public class PagecallWebChromeClient extends WebChromeClient {
     }
 
     private Boolean noAcceptTypesSet(String[] types) {
-        // when our array returned from getAcceptTypes() has no values set from the webview
+        // when our array returned from getAcceptTypes() has no values set from the
+        // webview
         // i.e. <input type="file" />, without any "accept" attr
         // will be an array with one empty string element, afaik
 
@@ -122,7 +123,8 @@ public class PagecallWebChromeClient extends WebChromeClient {
         }
 
         // we have one file selected
-        if (data.getData() != null && resultCode == Activity.RESULT_OK && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (data.getData() != null && resultCode == Activity.RESULT_OK
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             return WebChromeClient.FileChooserParams.parseResult(resultCode, data);
         }
 

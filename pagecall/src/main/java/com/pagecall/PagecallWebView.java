@@ -34,17 +34,25 @@ import java.util.function.Consumer;
 final public class PagecallWebView extends WebView {
 
     public interface Listener {
-        default void onLoaded() {};
-        default void onMessage(String message) {};
-        default void onEvent(JSONObject payload) {};
-        default void onTerminated(TerminationReason reason) {};
-        default void onError(WebResourceError error) {};
+        default void onLoaded() {
+        };
+
+        default void onMessage(String message) {
+        };
+
+        default void onEvent(JSONObject payload) {
+        };
+
+        default void onTerminated(TerminationReason reason) {
+        };
+
+        default void onError(WebResourceError error) {
+        };
     }
 
     public enum PagecallMode {
         MEET("meet"),
-        REPLAY("replay")
-        ;
+        REPLAY("replay");
 
         private final String value;
 
@@ -62,7 +70,7 @@ final public class PagecallWebView extends WebView {
         }
 
         public String getBaseURLString() {
-            switch(this.value) {
+            switch (this.value) {
                 case "meet":
                     return "https://app.pagecall.com/meet";
                 case "replay":
@@ -75,9 +83,9 @@ final public class PagecallWebView extends WebView {
 
     private Listener listener;
 
-    final static String version = "0.0.38";
+    final static String version = "0.0.39-rc0";
 
-    private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
+    private final static String[] defaultPagecallUrls = { "app.pagecall", "demo.pagecall", "192.168" };
     private final static String jsInterfaceName = "pagecallAndroidBridge";
     private HashMap<String, Consumer<String>> subscribers = new HashMap<>();
 
@@ -114,7 +122,8 @@ final public class PagecallWebView extends WebView {
     }
 
     public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
-        if (!this.isChime) return false;
+        if (!this.isChime)
+            return false;
         // chime일 때만 아래 코드를 실행
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         switch (keyCode) {
@@ -140,11 +149,13 @@ final public class PagecallWebView extends WebView {
     public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode) {
         this.load(roomId, accessToken, mode, new HashMap<>());
     }
-    public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode, @Nullable HashMap<String, String> queryItems) {
+
+    public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode,
+            @Nullable HashMap<String, String> queryItems) {
         Uri baseUri = Uri.parse(mode.getBaseURLString());
         Uri.Builder uriBuilder = baseUri.buildUpon()
-            .appendQueryParameter("room_id", roomId)
-            .appendQueryParameter("access_token", accessToken);
+                .appendQueryParameter("room_id", roomId)
+                .appendQueryParameter("access_token", accessToken);
         if (queryItems != null && !queryItems.isEmpty()) {
             for (Map.Entry<String, String> entry : queryItems.entrySet()) {
                 uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
@@ -166,7 +177,8 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public void loadUrl(@NonNull String url, @NonNull Map<String, String> additionalHttpHeaders) {
         super.loadUrl(url, additionalHttpHeaders);
     }
@@ -174,7 +186,8 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public void loadData(@NonNull String data, @Nullable String mimeType, @Nullable String encoding) {
         super.loadData(data, mimeType, encoding);
     }
@@ -182,8 +195,10 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
-    public void loadDataWithBaseURL(@Nullable String baseUrl, @NonNull String data, @Nullable String mimeType, @Nullable String encoding, @Nullable String historyUrl) {
+    @Override
+    @Deprecated
+    public void loadDataWithBaseURL(@Nullable String baseUrl, @NonNull String data, @Nullable String mimeType,
+            @Nullable String encoding, @Nullable String historyUrl) {
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
     }
 
@@ -192,7 +207,8 @@ final public class PagecallWebView extends WebView {
     protected void init(Context context) {
         // Check if the context is ActivityContext or MutableContextWrapper
         if (!(context instanceof Activity) && !(context instanceof MutableContextWrapper)) {
-            throw new IllegalArgumentException("The provided context is neither an Activity nor a MutableContextWrapper.");
+            throw new IllegalArgumentException(
+                    "The provided context is neither an Activity nor a MutableContextWrapper.");
         }
         if (this.pagecallUrls == null) {
             pagecallUrls = defaultPagecallUrls;
@@ -204,13 +220,16 @@ final public class PagecallWebView extends WebView {
 
         this.getSettings().setUserAgentString(userAgent + " PagecallAndroidSDK/" + version);
 
-        if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
+        if (nativeBridge == null)
+            nativeBridge = new NativeBridge(this, subscribers);
         nativeBridge.listenBridgeMessages(jsonMessage -> {
-            if (this.listener == null) return;
+            if (this.listener == null)
+                return;
             String action = jsonMessage.optString("action", "");
             NativeBridgeAction bridgeAction = NativeBridgeAction.fromString(action);
 
-            if (bridgeAction == NativeBridgeAction.REQUEST_AUDIO_VOLUME) return;
+            if (bridgeAction == NativeBridgeAction.REQUEST_AUDIO_VOLUME)
+                return;
 
             switch (bridgeAction) {
                 case LOADED: {
@@ -224,7 +243,8 @@ final public class PagecallWebView extends WebView {
                         } else {
                             // MI
                             try {
-                                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                                AudioManager audioManager = (AudioManager) context
+                                        .getSystemService(Context.AUDIO_SERVICE);
                                 audioManager.setBluetoothScoOn(true);
                                 audioManager.startBluetoothSco();
                                 // 1. Should it be stopped later?
@@ -298,16 +318,15 @@ final public class PagecallWebView extends WebView {
     }
 
     private void evaluateJavascriptWithLog(String script) {
-        String finalScript = "(function userScript(){"+ script + "})()";
+        String finalScript = "(function userScript(){" + script + "})()";
         this.post(() -> this.evaluateJavascript(finalScript, value -> {
             // todo: handle result
         }));
     }
+
     public void sendMessage(String message) {
         String script = MessageFormat.format(
-                "if (!window.Pagecall) return false; window.Pagecall.sendMessage(\"{0}\"); return true;"
-                , message
-        );
+                "if (!window.Pagecall) return false; window.Pagecall.sendMessage(\"{0}\"); return true;", message);
         this.evaluateJavascriptWithLog(script);
     }
 
@@ -329,7 +348,8 @@ final public class PagecallWebView extends WebView {
                         "const subscription = %s.subscribe(callback);" +
                         "if (!window[\"%s\"]) window[\"%s\"] = {};" +
                         "window[\"%s\"][\"%s\"] = subscription;",
-                jsInterfaceName, id, target, subscriptionsStorageName, subscriptionsStorageName, subscriptionsStorageName, id);
+                jsInterfaceName, id, target, subscriptionsStorageName, subscriptionsStorageName,
+                subscriptionsStorageName, id);
         evaluateJavascriptWithLog(returningScript);
 
         return () -> {
