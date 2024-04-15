@@ -35,6 +35,7 @@ class NativeBridge {
     public Boolean loaded = false;
 
     private ArrayList<Consumer<JSONObject>> bridgeMessageConsumers = new ArrayList();
+
     public void listenBridgeMessages(Consumer<JSONObject> listener) {
         this.bridgeMessageConsumers.add(listener);
     }
@@ -254,7 +255,7 @@ class NativeBridge {
 
                 case GET_AUDIO_DEVICES:
                     if (this.mediaController instanceof MediaInfraController) {
-                        if ( audioManager != null) {
+                        if (audioManager != null) {
                             AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
                             AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
                             AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
@@ -295,8 +296,10 @@ class NativeBridge {
                         } catch (PagecallError e) {
                             respondEmpty.accept(e);
                         }
-                    } else {
+                    } else if (mediaController instanceof ChimeController) {
                         respondEmpty.accept(new PagecallError("ChimeController does not have getMediaStats"));
+                    } else {
+                        respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
                     }
 
                 case REQUEST_AUDIO_VOLUME:
@@ -350,7 +353,7 @@ class NativeBridge {
                         ChimeController chimeController = (ChimeController) mediaController;
                         try {
                             chimeController.setAudioDevice(payloadData.getString("deviceId"));
-                        } catch(PagecallError error) {
+                        } catch (PagecallError error) {
                             respondEmpty.accept(error);
                         }
                     } else {
