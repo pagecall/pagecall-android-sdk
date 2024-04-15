@@ -167,6 +167,7 @@ class WebViewEmitter {
     }
 
     public void responseError(String requestId, String errorMessage) {
+        Log.e("PagecallNative.responseError: ", errorMessage);
         final String script = MessageFormat.format("window.PagecallNative.throw(\"{0}\", \"{1}\")", requestId, errorMessage);
         runScript(script, value -> {
             if (value != null && !value.isEmpty()) {
