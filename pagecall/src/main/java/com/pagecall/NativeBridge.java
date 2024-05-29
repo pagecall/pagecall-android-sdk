@@ -286,12 +286,23 @@ class NativeBridge {
                  * Below requires mediaController to exist
                  */
                 case START:
-                    if (mediaController == null) {
-                        respondEmpty.accept(new PagecallError("Missing mediaController"));
+                    if (mediaController instanceof ChimeController) {
+                        NativeBridge bridge = this;
+                        mediaController.start(new MediaController.AudioProducerCallback() {
+                            @Override
+                            public void onResult(Exception error) {
+                                bridge.synchronizePauseState();
+                                // emit decibel after entering
+                                AudioRecordManager.startEmitVolumeSchedule(context, emitter);
+                                if (error == null) {
+                                    respondEmpty.accept(null);
+                                } else {
+                                    respondEmpty.accept(new PagecallError(error.getLocalizedMessage()));
+                                }
+                            }
+                        });
                     } else {
-                        this.synchronizePauseState();
-                        // emit decibel after entering
-                        AudioRecordManager.startEmitVolumeSchedule(context, emitter);
+                        respondEmpty.accept(new PagecallError("Missing mediaController"));
                     }
                     return;
                 case DISPOSE:
