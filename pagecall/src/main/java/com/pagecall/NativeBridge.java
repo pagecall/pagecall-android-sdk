@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mediasoup.droid.MediasoupException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -234,13 +233,8 @@ class NativeBridge {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
                     }
-                    try {
-                        MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
-                        this.mediaController = new MediaInfraController(emitter, initialPayload, context);
-                    } catch (Exception error) {
-                        ChimeController.ChimeInitialPayload initialPayload = new ChimeController.ChimeInitialPayload(payloadData);
-                        this.mediaController = new ChimeController(emitter, initialPayload, context);
-                    }
+                    ChimeController.ChimeInitialPayload initialPayload = new ChimeController.ChimeInitialPayload(payloadData);
+                    this.mediaController = new ChimeController(emitter, initialPayload, context);
                     this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
@@ -254,28 +248,7 @@ class NativeBridge {
                     return;
 
                 case GET_AUDIO_DEVICES:
-                    if (this.mediaController instanceof MediaInfraController) {
-                        if (audioManager != null) {
-                            AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
-                            AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-                            AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
-                            System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
-                            System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
-
-                            MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
-
-                            /**
-                             * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
-                             * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
-                             * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
-                             */
-                            MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
-
-                            respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
-                        } else {
-                            respondEmpty.accept(new PagecallError("Missing audioManager"));
-                        }
-                    } else if (this.mediaController instanceof ChimeController) {
+                    if (this.mediaController instanceof ChimeController) {
                         ChimeController chimeController = (ChimeController) this.mediaController;
                         MediaDeviceInfo[] mediaDeviceInfoList = chimeController.getAudioDevices();
                         respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(mediaDeviceInfoList));
@@ -285,18 +258,7 @@ class NativeBridge {
                     return;
 
                 case GET_MEDIA_STATS:
-                    if (mediaController instanceof MediaInfraController) {
-                        try {
-                            JSONObject mediaStats = ((MediaInfraController) mediaController).getMediaStats();
-                            respondObject.accept(null, mediaStats);
-                        } catch (MediasoupException e) {
-                            respondEmpty.accept(new PagecallError("[getMediaStats] MediasoupException: " + e.getMessage()));
-                        } catch (JSONException e) {
-                            respondEmpty.accept(new PagecallError("[getMediaStats] JSONException: " + e.getMessage()));
-                        } catch (PagecallError e) {
-                            respondEmpty.accept(e);
-                        }
-                    } else if (mediaController instanceof ChimeController) {
+                    if (mediaController instanceof ChimeController) {
                         respondEmpty.accept(new PagecallError("ChimeController does not have getMediaStats"));
                     } else {
                         respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
@@ -327,12 +289,6 @@ class NativeBridge {
                     if (mediaController == null) {
                         respondEmpty.accept(new PagecallError("Missing mediaController"));
                     } else {
-                        mediaController.start(new MediaInfraController.AudioProducerCallback() {
-                            @Override
-                            public void onResult(Exception error) {
-                                respondEmpty.accept(error);
-                            }
-                        });
                         this.synchronizePauseState();
                         // emit decibel after entering
                         AudioRecordManager.startEmitVolumeSchedule(context, emitter);
@@ -346,10 +302,7 @@ class NativeBridge {
                     respondEmpty.accept(null);
                     return;
                 case SET_AUDIO_DEVICE:
-                    if (mediaController instanceof MediaInfraController) {
-                        // No op for MediaInfraController
-                        respondEmpty.accept(null);
-                    } else if (mediaController instanceof ChimeController) {
+                    if (mediaController instanceof ChimeController) {
                         ChimeController chimeController = (ChimeController) mediaController;
                         try {
                             chimeController.setAudioDevice(payloadData.getString("deviceId"));
@@ -362,33 +315,7 @@ class NativeBridge {
                     }
                     return;
                 case CONSUME:
-                    if (!(mediaController instanceof MediaInfraController)) {
-                        respondObject.accept(new PagecallError("Missing mediaController, initialize first"), null);
-                        return;
-                    }
-
-                    JSONObject response = safeParseJSON(payload);
-
-                    String sessionId = response.optString("appPeerId");
-                    String producerId = response.optString("producerId");
-                    String id = response.optString("id");
-                    String kind = response.optString("kind");
-                    String rtpParameters = response.optString("rtpParameters");
-                    String type = response.optString("type");
-                    String appData = response.optString("appData");
-                    boolean producerPaused = response.optBoolean("paused");
-
-                    ((MediaInfraController) mediaController).consume(
-                            sessionId,
-                            id,
-                            producerId,
-                            kind,
-                            rtpParameters,
-                            type,
-                            appData,
-                            producerPaused
-                    );
-                    respondEmpty.accept(null);
+                    respondObject.accept(new PagecallError("Missing mediaController, initialize first"), null);
                     return;
             }
         } catch (Exception e) {
