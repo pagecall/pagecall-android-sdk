@@ -9,6 +9,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -189,7 +190,12 @@ final public class PagecallWebView extends WebView {
 
     private PagecallWebChromeClient webChromeClient;
 
+    private static Integer initCount = 0;
+
     protected void init(Context context) {
+        initCount += 1;
+        Log.d("PagecallWebView", "init " + initCount);
+
         // Check if the context is ActivityContext or MutableContextWrapper
         if (!(context instanceof Activity) && !(context instanceof MutableContextWrapper)) {
             throw new IllegalArgumentException("The provided context is neither an Activity nor a MutableContextWrapper.");
@@ -206,8 +212,12 @@ final public class PagecallWebView extends WebView {
 
         if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
         nativeBridge.listenBridgeMessages(jsonMessage -> {
-            if (this.listener == null) return;
+            if (this.listener == null) {
+                Log.d("PagecallWebView","bridge message received, but no listener attached");
+                return;
+            }
             String action = jsonMessage.optString("action", "");
+            Log.d("PagecallWebView","bridge action: " + action);
             NativeBridgeAction bridgeAction = NativeBridgeAction.fromString(action);
 
             if (bridgeAction == NativeBridgeAction.REQUEST_AUDIO_VOLUME) return;
