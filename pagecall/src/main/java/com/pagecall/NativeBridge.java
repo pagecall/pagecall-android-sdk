@@ -327,15 +327,20 @@ class NativeBridge {
                     if (mediaController == null) {
                         respondEmpty.accept(new PagecallError("Missing mediaController"));
                     } else {
-                        mediaController.start(new MediaInfraController.AudioProducerCallback() {
+                        NativeBridge bridge = this;
+                        mediaController.start(new MediaController.AudioProducerCallback() {
                             @Override
                             public void onResult(Exception error) {
-                                respondEmpty.accept(error);
+                                bridge.synchronizePauseState();
+                                // emit decibel after entering
+                                AudioRecordManager.startEmitVolumeSchedule(context, emitter);
+                                if (error == null) {
+                                    respondEmpty.accept(null);
+                                } else {
+                                    respondEmpty.accept(new PagecallError(error.getLocalizedMessage()));
+                                }
                             }
                         });
-                        this.synchronizePauseState();
-                        // emit decibel after entering
-                        AudioRecordManager.startEmitVolumeSchedule(context, emitter);
                     }
                     return;
                 case DISPOSE:
