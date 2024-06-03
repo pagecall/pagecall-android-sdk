@@ -366,23 +366,13 @@ final public class PagecallWebView extends WebView {
         return jsCode;
     }
 
-    private void destroyBridge() {
+    @Override
+    public void destroy() {
+        evaluateJavascript("Pagecall.terminate()", value -> super.destroy());
         this.removeJavascriptInterface(jsInterfaceName);
         if (nativeBridge != null) {
             this.nativeBridge.destroy();
             this.nativeBridge = null;
         }
-    }
-
-    @Override
-    public void destroy() {
-        evaluateJavascript("Pagecall.terminate()", value -> super.destroy());
-        destroyBridge();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        destroyBridge();
     }
 }
