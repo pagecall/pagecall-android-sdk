@@ -223,6 +223,14 @@ class NativeBridge {
             switch (bridgeAction) {
                 case LOADED:
                     this.loaded = true;
+                    try {
+                        audioManager.setBluetoothScoOn(true);
+                        audioManager.startBluetoothSco();
+                        // Should it be stopped later?
+                    } catch (Exception e) {
+                        Log.e("NativeBridge", e.getLocalizedMessage());
+                        e.printStackTrace();
+                    }
                     return;
                 case INITIALIZE:
                     if (audioManager != null) {
