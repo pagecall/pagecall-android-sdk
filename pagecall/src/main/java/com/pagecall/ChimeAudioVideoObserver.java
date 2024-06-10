@@ -62,9 +62,9 @@ public class ChimeAudioVideoObserver implements AudioVideoObserver {
         JSONObject json = new JSONObject();
         try {
             json.put("statusCode", sessionStatus.getStatusCode().getValue());
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            Log.e("ChimeAudioVideoObserver", "Error creating JSON object.");
+            Log.e("ChimeAudioVideoObserver", "Error creating JSON object: " + e.getMessage());
         }
         this.emitter.emit(NativeBridgeEvent.DISCONNECTED, json);
         this.emitAudioDeviceList();
