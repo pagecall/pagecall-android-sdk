@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -33,12 +34,12 @@ class AudioRecordManager {
      * Checks Permission, computes and returns amplitude in 0 ~ 10000
      *
      * @param context Android Context
-     * @return 0 if permission is not granted
+     * @return -1 if permission is not granted or it failed to get the volume
      */
-    static double getMicrophoneAmplitude(@NonNull Context context) {
+    private static synchronized double getMicrophoneAmplitude(@NonNull Context context) {
         // Check Permission
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            return 0;
+            return -1;
         }
 
         // Create AudioRecord if null
@@ -48,23 +49,30 @@ class AudioRecordManager {
                 buffer = new short[bufferSize];
                 audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
             }
-
         }
+
         if (audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
             audioRecord.startRecording();
+        } else {
+            Log.e("AudioRecordManager", "AudioRecord not initialized properly");
+            return -1;
         }
 
-        // Get Volume using Buffer Amplitudes
-        int readSize = audioRecord.read(buffer, 0, bufferSize);
-        if (readSize > 0) {
-            int maxAmplitude = 0;
-            for (int i = 0; i < readSize; i++) {
-                maxAmplitude = Math.max(maxAmplitude, Math.abs(buffer[i]));
+        try {
+            // Get Volume using Buffer Amplitudes
+            int readSize = audioRecord.read(buffer, 0, bufferSize);
+            if (readSize > 0) {
+                int maxAmplitude = 0;
+                for (int i = 0; i < readSize; i++) {
+                    maxAmplitude = Math.max(maxAmplitude, Math.abs(buffer[i]));
+                }
+                return maxAmplitude;
+            } else {
+                return 0;
             }
-
-            return maxAmplitude;
-        } else {
-            return 0;
+        } catch (Exception e) {
+            Log.e("AudioRecordManager", e.getLocalizedMessage());
+            return -1;
         }
     }
 
@@ -72,10 +80,11 @@ class AudioRecordManager {
      * returns volume in 0 ~ 1
      *
      * @param context Android Context
-     * @return 0 if permission is not granted
+     * @return -1 if permission is not granted or it failed to get the volume
      */
     static double getMicrophoneVolume(@NonNull Context context) {
         double amplitude = getMicrophoneAmplitude(context);
+        if (amplitude < 0) return amplitude;
         double volume = (amplitude - AMPLITUDE_IDLE) / AMPLITUDE_MAX;
         return Math.max(0, Math.min(1, volume));
     }
@@ -88,7 +97,11 @@ class AudioRecordManager {
     static void startEmitVolumeSchedule(@NonNull Context context, @NonNull WebViewEmitter emitter) {
         if (volumeEmitter == null) volumeEmitter = Executors.newSingleThreadScheduledExecutor();
         volumeEmitter.scheduleAtFixedRate(
-                () -> emitter.emit(NativeBridgeEvent.AUDIO_VOLUME, Double.toString(getMicrophoneVolume(context))),
+                () -> {
+                    double volume = getMicrophoneVolume(context);
+                    if (volume < 0) return;
+                    emitter.emit(NativeBridgeEvent.AUDIO_VOLUME, Double.toString(volume));
+                },
                 0,
                 500,
                 TimeUnit.MILLISECONDS
