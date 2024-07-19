@@ -304,7 +304,7 @@ class NativeBridge {
 
                 case REQUEST_AUDIO_VOLUME:
                     double volume = AudioRecordManager.getMicrophoneVolume(context);
-                    respondNumber.accept(null, volume);
+                    respondNumber.accept(null, volume < 0 ? 0 : volume);
                     return;
 
                 case PAUSE_AUDIO:
