@@ -2,7 +2,9 @@ package com.pagecall;
 
 import android.Manifest;
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -138,11 +140,20 @@ class NativeBridge {
         return null;
     }
 
+    private BluetoothReceiver bluetoothReceiver;
+
     public NativeBridge(PagecallWebView webView, HashMap<String, Consumer<String>> subscribers) {
         this.pagecallWebView = webView;
         this.context = webView.getContext();
         this.emitter = new WebViewEmitter(this.pagecallWebView);
         this.subscribers = subscribers;
+
+        this.bluetoothReceiver = new BluetoothReceiver(this.context);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(AudioManager.ACTION_SCO_AUDIO_STATE_UPDATED);
+        this.context.registerReceiver(bluetoothReceiver, filter);
     }
 
     private JSONObject safeParseJSON(String json) {
@@ -402,5 +413,6 @@ class NativeBridge {
             mediaController = null;
         }
         AudioRecordManager.dispose();
+        this.context.unregisterReceiver(bluetoothReceiver);
     }
 }
