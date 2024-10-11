@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.MutableContextWrapper;
 import android.content.res.AssetManager;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -26,7 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -190,6 +194,57 @@ final public class PagecallWebView extends WebView {
 
     private PagecallWebChromeClient webChromeClient;
 
+    private void updateCommunicationDevice() {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        List<AudioDeviceInfo> devices = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? audioManager.getAvailableCommunicationDevices() : Arrays.asList(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS));
+        for (AudioDeviceInfo deviceInfo: devices) {
+            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET || deviceInfo.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO){
+                audioManager.startBluetoothSco();
+                audioManager.setBluetoothScoOn(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    audioManager.setCommunicationDevice(deviceInfo);
+                }
+                if (this.nativeBridge != null) {
+                    this.nativeBridge.log("deviceChange", "Bluetooth output detected: " + deviceInfo.getProductName());
+                }
+                return;
+            }
+        }
+
+        for (AudioDeviceInfo deviceInfo: devices) {
+            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                audioManager.stopBluetoothSco();
+                audioManager.setSpeakerphoneOn(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    audioManager.setCommunicationDevice(deviceInfo);
+                }
+                if (this.nativeBridge != null) {
+                    this.nativeBridge.log("deviceChange", "Builtin speaker: " + deviceInfo.getProductName());
+                }
+                return;
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            audioManager.clearCommunicationDevice();
+        }
+        if (this.nativeBridge != null) {
+            this.nativeBridge.log("deviceChange", "Available device not found");
+        }
+    }
+
+    final AudioDeviceCallback audioDeviceCallback = new AudioDeviceCallback() {
+        @Override
+        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+            updateCommunicationDevice();
+        }
+
+        @Override
+        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+            updateCommunicationDevice();
+        }
+    };
+
     private static Integer initCount = 0;
 
     protected void init(Context context) {
@@ -210,6 +265,11 @@ final public class PagecallWebView extends WebView {
 
         this.getSettings().setUserAgentString(userAgent + " PagecallAndroidSDK/" + version);
 
+
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        audioManager.registerAudioDeviceCallback(audioDeviceCallback, null);
+
         if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
         nativeBridge.listenBridgeMessages(jsonMessage -> {
             if (this.listener == null) {
@@ -226,23 +286,7 @@ final public class PagecallWebView extends WebView {
                 case LOADED: {
                     this.listener.onLoaded();
                     this.post(() -> this.evaluateJavascript("!!Pagecall.media.chimeSession$", value -> {
-                        if ("true".equals(value)) {
-                            // Chime
-                            this.isChime = true;
-                            AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-                        } else {
-                            // MI
-                            try {
-                                AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-                                audioManager.setBluetoothScoOn(true);
-                                audioManager.startBluetoothSco();
-                                // 1. Should it be stopped later?
-                                // 2. Should it be called on Chime?
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        this.isChime = "true".equals(value);
                     }));
                     break;
                 }
@@ -373,6 +417,13 @@ final public class PagecallWebView extends WebView {
         if (nativeBridge != null) {
             this.nativeBridge.destroy();
             this.nativeBridge = null;
+        }
+
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.stopBluetoothSco();
+        audioManager.unregisterAudioDeviceCallback(audioDeviceCallback);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            audioManager.clearCommunicationDevice();
         }
     }
 }
