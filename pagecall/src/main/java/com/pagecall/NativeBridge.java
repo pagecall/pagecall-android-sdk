@@ -144,6 +144,10 @@ class NativeBridge {
         this.subscribers = subscribers;
     }
 
+    public void log(String name, String message) {
+        this.emitter.log(name, message);
+    }
+
     private JSONObject safeParseJSON(String json) {
         if (json == null || json.isEmpty()) {
             return new JSONObject();

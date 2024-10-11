@@ -124,7 +124,6 @@ class WebViewEmitter {
     }
 
     public void error(String name, String message) {
-        System.out.println("errorLog " + name + " " + message);
         JSONObject json = new JSONObject();
         try {
             json.put("name", name);
@@ -137,14 +136,15 @@ class WebViewEmitter {
     }
 
     public void log(String name, String message) {
-        NativeBridgeErrorEvent errorEvent = new NativeBridgeErrorEvent(name, message);
         JSONObject json = new JSONObject();
         try {
-            json.put("name", errorEvent.getName());
-            json.put("name", errorEvent.getName());
+            json.put("name", name);
+            json.put("message", message);
         } catch (JSONException e) {
+            e.printStackTrace();
             return;
         }
+        emit(NativeBridgeEvent.LOG, json);
     }
 
     public void runScript(final String script, Consumer<String> callback) {
