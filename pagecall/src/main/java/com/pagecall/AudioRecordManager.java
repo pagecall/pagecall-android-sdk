@@ -118,7 +118,13 @@ class AudioRecordManager {
 
     static void dispose() {
         if (audioRecord != null) {
-            audioRecord.stop();
+            if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
+                try {
+                    audioRecord.stop();
+                } catch (IllegalStateException e) {
+                    Log.e("AudioRecordManager", e.getLocalizedMessage());
+                }
+            }
             audioRecord.release();
             audioRecord = null;
         }
