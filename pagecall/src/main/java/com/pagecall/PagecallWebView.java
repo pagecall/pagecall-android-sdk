@@ -355,6 +355,32 @@ final public class PagecallWebView extends WebView {
         this.evaluateJavascriptWithLog(script);
     }
 
+    private void setValueRaw(String key, Object value) {
+        final String script =
+                "(function(window) {" +
+                "  try {" +
+                "    window.PagecallUI?.set('" + key + "', " + value + ");" +
+                "    return 'Success';" +
+                "  } catch (e) {" +
+                "    return 'Error: ' + e.message;" +
+                "  }" +
+                "})(window);";
+
+        evaluateJavascript(script, returnValue -> {
+            if (returnValue.startsWith("\"Error:")) {
+                Log.e("PagecallViewManager", "setValueRaw script error: " + returnValue);
+            }
+        });
+    }
+
+    public void setValue(String key, String value) {
+        setValueRaw(key, "\"" + value + "\"");
+    }
+
+    public void setValue(String key, Number value) {
+        setValueRaw(key, value);
+    }
+
     private final String subscriptionsStorageName = "__pagecallNativeSubscriptions";
 
     private Runnable subscribe(String target, Consumer<String> subscriber) {
