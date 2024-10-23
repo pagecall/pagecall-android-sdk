@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -368,7 +369,7 @@ final public class PagecallWebView extends WebView {
 
         evaluateJavascript(script, returnValue -> {
             if (returnValue.startsWith("\"Error:")) {
-                Log.e("PagecallViewManager", "setValueRaw script error: " + returnValue);
+                Log.e("PagecallWebView", "setValueRaw script error: " + returnValue);
             }
         });
     }
