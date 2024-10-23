@@ -378,7 +378,7 @@ final public class PagecallWebView extends WebView {
 
         evaluateJavascript(script, returnValue -> {
             if (returnValue.startsWith("\"Error:")) {
-                Log.e("PagecallViewManager", "setValueRaw script error: " + returnValue);
+                Log.e("PagecallWebView", "setValueRaw script error: " + returnValue);
             }
         });
     }
