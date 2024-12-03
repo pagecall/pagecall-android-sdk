@@ -238,13 +238,8 @@ class NativeBridge {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
                     }
-                    try {
-                        MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
-                        this.mediaController = new MediaInfraController(emitter, initialPayload, context);
-                    } catch (Exception error) {
-                        ChimeController.ChimeInitialPayload initialPayload = new ChimeController.ChimeInitialPayload(payloadData);
-                        this.mediaController = new ChimeController(emitter, initialPayload, context);
-                    }
+                    MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
+                    this.mediaController = new MediaInfraController(emitter, initialPayload, context);
                     this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
@@ -279,10 +274,6 @@ class NativeBridge {
                         } else {
                             respondEmpty.accept(new PagecallError("Missing audioManager"));
                         }
-                    } else if (this.mediaController instanceof ChimeController) {
-                        ChimeController chimeController = (ChimeController) this.mediaController;
-                        MediaDeviceInfo[] mediaDeviceInfoList = chimeController.getAudioDevices();
-                        respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(mediaDeviceInfoList));
                     } else {
                         respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
                     }
@@ -300,8 +291,6 @@ class NativeBridge {
                         } catch (PagecallError e) {
                             respondEmpty.accept(e);
                         }
-                    } else if (mediaController instanceof ChimeController) {
-                        respondEmpty.accept(new PagecallError("ChimeController does not have getMediaStats"));
                     } else {
                         respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
                     }
@@ -353,13 +342,6 @@ class NativeBridge {
                     if (mediaController instanceof MediaInfraController) {
                         // No op for MediaInfraController
                         respondEmpty.accept(null);
-                    } else if (mediaController instanceof ChimeController) {
-                        ChimeController chimeController = (ChimeController) mediaController;
-                        try {
-                            chimeController.setAudioDevice(payloadData.getString("deviceId"));
-                        } catch (PagecallError error) {
-                            respondEmpty.accept(error);
-                        }
                     } else {
                         // MediaController is uninitialized yet
                         respondEmpty.accept(null);
