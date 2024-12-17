@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.pagecall.PagecallError;
 import com.pagecall.PagecallWebView;
 import com.pagecall.TerminationReason;
 
@@ -131,7 +132,7 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
     }
 
     @Override
-    public void onError(WebResourceError error) {
-        Log.d("SampleApp", "Error occurred " + error.getDescription());
+    public void onError(PagecallError error) {
+        Log.d("SampleApp", "Error occurred " + error.getMessage());
     }
 }
