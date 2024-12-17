@@ -82,7 +82,7 @@ final public class PagecallWebView extends WebView {
 
     private Listener listener;
 
-    final static String version = "0.0.43";
+    final static String version = "0.0.44";
 
     private final static String[] defaultPagecallUrls = {"app.pagecall", "demo.pagecall", "192.168"};
     private final static String jsInterfaceName = "pagecallAndroidBridge";
