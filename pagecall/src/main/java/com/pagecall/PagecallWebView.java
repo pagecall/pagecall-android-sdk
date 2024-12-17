@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.MutableContextWrapper;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -305,6 +306,12 @@ final public class PagecallWebView extends WebView {
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
         super.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Log.d("PagecallWebView", "Navigation started: " + url);
+            }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
