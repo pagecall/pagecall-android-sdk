@@ -13,6 +13,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -43,7 +44,7 @@ final public class PagecallWebView extends WebView {
         default void onMessage(String message) {};
         default void onEvent(JSONObject payload) {};
         default void onTerminated(TerminationReason reason) {};
-        default void onError(WebResourceError error) {};
+        default void onError(PagecallError error) {};
     }
 
     public enum PagecallMode {
@@ -328,10 +329,26 @@ final public class PagecallWebView extends WebView {
             @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (listener != null) {
-                    listener.onError(error);
+                    listener.onError(new PagecallError(error.getDescription().toString()));
                 }
             }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (!detail.didCrash()) {
+                        Log.e("PagecallWebView", "System killed the WebView rendering process to reclaim memory.");
+                        if (listener != null) {
+                            listener.onError(new PagecallError("Out of memory"));
+                        }
+                        return true; // The app continues executing.
+                    }
+                }
+                Log.e("PagecallWebView", "Renderer crashed because of an internal error, such as a memory access violation.");
+                return false;
+            }
         });
+
         this.webChromeClient = new PagecallWebChromeClient(this);
         super.setWebChromeClient(this.webChromeClient);
     }
