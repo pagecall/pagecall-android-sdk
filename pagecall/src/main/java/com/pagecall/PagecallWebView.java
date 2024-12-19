@@ -199,39 +199,64 @@ final public class PagecallWebView extends WebView {
     private void updateCommunicationDevice() {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         List<AudioDeviceInfo> devices = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? audioManager.getAvailableCommunicationDevices() : Arrays.asList(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS));
-        for (AudioDeviceInfo deviceInfo: devices) {
-            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET || deviceInfo.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO){
-                audioManager.startBluetoothSco();
-                audioManager.setBluetoothScoOn(true);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    audioManager.setCommunicationDevice(deviceInfo);
-                }
-                if (this.nativeBridge != null) {
-                    this.nativeBridge.log("deviceChange", "Bluetooth output detected: " + deviceInfo.getProductName());
-                }
-                return;
+
+        // 1. Bluetooth
+        AudioDeviceInfo bluetoothDevice = null;
+        for (AudioDeviceInfo deviceInfo : devices) {
+            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BLE_HEADSET || deviceInfo.getType() == AudioDeviceInfo.TYPE_BLUETOOTH_SCO) {
+                bluetoothDevice = deviceInfo;
+                break;
             }
         }
+        if (bluetoothDevice != null) {
+            audioManager.startBluetoothSco();
+            audioManager.setBluetoothScoOn(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                audioManager.setCommunicationDevice(bluetoothDevice);
+            }
+            if (this.nativeBridge != null) {
+                this.nativeBridge.log("deviceChange", "Bluetooth output detected: " + bluetoothDevice.getProductName());
+            }
+            return;
+        }
 
-        for (AudioDeviceInfo deviceInfo: devices) {
+        // 2. Headphone (Including earpieces)
+        AudioDeviceInfo headphoneDevice = null;
+        for (AudioDeviceInfo deviceInfo : devices) {
+            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
+                    deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+                    deviceInfo.getType() == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE) {
+                headphoneDevice = deviceInfo;
+                break;
+            }
+        }
+        if (headphoneDevice != null) {
+            audioManager.stopBluetoothSco();
+            audioManager.setSpeakerphoneOn(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                audioManager.setCommunicationDevice(headphoneDevice);
+            }
+            if (this.nativeBridge != null) {
+                this.nativeBridge.log("deviceChange", "Headphone output detected: " + headphoneDevice.getProductName());
+            }
+            return;
+        }
+
+        // 3. Builtin
+        AudioDeviceInfo builtinDevice = null;
+        for (AudioDeviceInfo deviceInfo : devices) {
             if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
-                audioManager.stopBluetoothSco();
-                audioManager.setSpeakerphoneOn(true);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    audioManager.setCommunicationDevice(deviceInfo);
-                }
-                if (this.nativeBridge != null) {
-                    this.nativeBridge.log("deviceChange", "Builtin speaker: " + deviceInfo.getProductName());
-                }
-                return;
+                builtinDevice = deviceInfo;
+                break;
             }
         }
-
+        audioManager.stopBluetoothSco();
+        audioManager.setSpeakerphoneOn(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             audioManager.clearCommunicationDevice();
         }
         if (this.nativeBridge != null) {
-            this.nativeBridge.log("deviceChange", "Available device not found");
+            this.nativeBridge.log("deviceChange", builtinDevice != null ? "Builtin speaker: " + builtinDevice.getProductName() : "Default");
         }
     }
 
