@@ -50,8 +50,7 @@ final public class PagecallWebView extends WebView {
 
     public enum PagecallMode {
         MEET("meet"),
-        REPLAY("replay")
-        ;
+        REPLAY("replay");
 
         private final String value;
 
@@ -69,7 +68,7 @@ final public class PagecallWebView extends WebView {
         }
 
         public String getBaseURLString() {
-            switch(this.value) {
+            switch (this.value) {
                 case "meet":
                     return "https://app.pagecall.com/meet";
                 case "replay":
@@ -147,11 +146,12 @@ final public class PagecallWebView extends WebView {
     public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode) {
         this.load(roomId, accessToken, mode, new HashMap<>());
     }
+
     public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode, @Nullable HashMap<String, String> queryItems) {
         Uri baseUri = Uri.parse(mode.getBaseURLString());
         Uri.Builder uriBuilder = baseUri.buildUpon()
-            .appendQueryParameter("room_id", roomId)
-            .appendQueryParameter("access_token", accessToken);
+                .appendQueryParameter("room_id", roomId)
+                .appendQueryParameter("access_token", accessToken);
         if (queryItems != null && !queryItems.isEmpty()) {
             for (Map.Entry<String, String> entry : queryItems.entrySet()) {
                 uriBuilder.appendQueryParameter(entry.getKey(), entry.getValue());
@@ -173,7 +173,8 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public void loadUrl(@NonNull String url, @NonNull Map<String, String> additionalHttpHeaders) {
         super.loadUrl(url, additionalHttpHeaders);
     }
@@ -181,7 +182,8 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public void loadData(@NonNull String data, @Nullable String mimeType, @Nullable String encoding) {
         super.loadData(data, mimeType, encoding);
     }
@@ -189,7 +191,8 @@ final public class PagecallWebView extends WebView {
     /**
      * @deprecated use load(roomId, accessToken, mode) instead.
      */
-    @Override @Deprecated
+    @Override
+    @Deprecated
     public void loadDataWithBaseURL(@Nullable String baseUrl, @NonNull String data, @Nullable String mimeType, @Nullable String encoding, @Nullable String historyUrl) {
         super.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
     }
@@ -392,11 +395,12 @@ final public class PagecallWebView extends WebView {
     }
 
     private void evaluateJavascriptWithLog(String script) {
-        String finalScript = "(function userScript(){"+ script + "})()";
+        String finalScript = "(function userScript(){" + script + "})()";
         this.post(() -> this.evaluateJavascript(finalScript, value -> {
             // todo: handle result
         }));
     }
+
     public void sendMessage(String message) {
         String script = MessageFormat.format(
                 "if (!window.Pagecall) return false; window.Pagecall.sendMessage(\"{0}\"); return true;"
