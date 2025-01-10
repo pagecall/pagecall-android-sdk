@@ -226,39 +226,31 @@ final public class PagecallWebView extends WebView {
                 this.nativeBridge.log("deviceChange", "Bluetooth output detected: " + bluetoothDevice.getProductName());
             }
             return;
+        } else {
+            audioManager.stopBluetoothSco();
         }
 
-        // 2. Headphone (Including earpieces)
-        AudioDeviceInfo headphoneDevice = null;
+        // 2. External devices (Headsets, earpieces, ...)
+        AudioDeviceInfo externalDevice = null;
         for (AudioDeviceInfo deviceInfo : devices) {
-            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
-                    deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
-                    deviceInfo.getType() == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE) {
-                headphoneDevice = deviceInfo;
+            if (deviceInfo.getType() != AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
+                externalDevice = deviceInfo;
                 break;
             }
         }
-        if (headphoneDevice != null) {
-            audioManager.stopBluetoothSco();
+        if (externalDevice != null) {
             audioManager.setSpeakerphoneOn(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                audioManager.setCommunicationDevice(headphoneDevice);
+                audioManager.setCommunicationDevice(externalDevice);
             }
             if (this.nativeBridge != null) {
-                this.nativeBridge.log("deviceChange", "Headphone output detected: " + headphoneDevice.getProductName());
+                this.nativeBridge.log("deviceChange", "External output detected: " + externalDevice.getProductName());
             }
             return;
         }
 
         // 3. Builtin
-        AudioDeviceInfo builtinDevice = null;
-        for (AudioDeviceInfo deviceInfo : devices) {
-            if (deviceInfo.getType() == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER) {
-                builtinDevice = deviceInfo;
-                break;
-            }
-        }
-        audioManager.stopBluetoothSco();
+        AudioDeviceInfo builtinDevice = devices.get(0);
         audioManager.setSpeakerphoneOn(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             audioManager.clearCommunicationDevice();
