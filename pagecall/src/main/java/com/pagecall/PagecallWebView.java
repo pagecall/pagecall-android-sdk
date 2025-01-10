@@ -199,6 +199,11 @@ final public class PagecallWebView extends WebView {
 
     private PagecallWebChromeClient webChromeClient;
 
+    private void sendChatForDebug(String message) {
+        String escapedMessage = message.replace("'", "\\'");
+        this.evaluateJavascriptWithLog("Pagecall.chat.sendMessage('" + escapedMessage + "');");
+    }
+
     private void updateCommunicationDevice() {
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         List<AudioDeviceInfo> devices = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? audioManager.getAvailableCommunicationDevices() : Arrays.asList(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS));
