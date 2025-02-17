@@ -41,6 +41,7 @@ import java.util.function.Consumer;
 final public class PagecallWebView extends WebView {
 
     public interface Listener {
+        default void onLoadStateChange(String message) {};
         default void onLoaded() {};
         default void onMessage(String message) {};
         default void onEvent(JSONObject payload) {};
@@ -148,6 +149,9 @@ final public class PagecallWebView extends WebView {
     }
 
     public void load(@NonNull String roomId, @NonNull String accessToken, @NonNull PagecallMode mode, @Nullable HashMap<String, String> queryItems) {
+        if (listener != null) {
+            listener.onLoadStateChange("Loading room: " + roomId + " with access token: " + accessToken + " in mode: " + mode);
+        }
         Uri baseUri = Uri.parse(mode.getBaseURLString());
         Uri.Builder uriBuilder = baseUri.buildUpon()
                 .appendQueryParameter("room_id", roomId)
@@ -335,10 +339,16 @@ final public class PagecallWebView extends WebView {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 Log.d("PagecallWebView", "Navigation started: " + url);
+                if (listener != null) {
+                    listener.onLoadStateChange("Navigation started: " + url);
+                }
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (listener != null) {
+                    listener.onLoadStateChange("Navigation finished: " + url);
+                }
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     // Do not evaluate native code under android 8. It will use web sdk.
                     return;
@@ -368,6 +378,9 @@ final public class PagecallWebView extends WebView {
                     }
                 }
                 Log.e("PagecallWebView", "Renderer crashed because of an internal error, such as a memory access violation.");
+                if (listener != null) {
+                    listener.onError(new PagecallError("Render process has gone"));
+                }
                 return false;
             }
         });

@@ -106,6 +106,10 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
 
     // PagecallWebView.Listener implementations
     @Override
+    public void onLoadStateChange(String message) {
+        Log.d("SampleApp", "Room is loading... message: " + message);
+    }
+    @Override
     public void onLoaded() {
         Log.d("SampleApp", "Room is loaded");
     }
