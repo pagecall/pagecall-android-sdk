@@ -92,7 +92,6 @@ final public class PagecallWebView extends WebView {
     private NativeBridge nativeBridge = null;
 
     private Context context;
-    private Boolean isChime = false;
 
     public PagecallWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -118,26 +117,6 @@ final public class PagecallWebView extends WebView {
     @Override
     public void setWebViewClient(WebViewClient client) {
         throw new UnsupportedOperationException("PagecallWebView does not support setWebViewClient");
-    }
-
-    public boolean handleVolumeKeys(int keyCode, KeyEvent event) {
-        if (!this.isChime) return false;
-        // chime일 때만 아래 코드를 실행
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
-                        AudioManager.ADJUST_RAISE,
-                        AudioManager.FLAG_SHOW_UI);
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,
-                        AudioManager.ADJUST_LOWER,
-                        AudioManager.FLAG_SHOW_UI);
-                return true;
-            default:
-                return false;
-        }
     }
 
     public void setListener(Listener listener) {
@@ -307,9 +286,6 @@ final public class PagecallWebView extends WebView {
             switch (bridgeAction) {
                 case LOADED: {
                     this.listener.onLoaded();
-                    this.post(() -> this.evaluateJavascript("!!Pagecall.media.chimeSession$", value -> {
-                        this.isChime = "true".equals(value);
-                    }));
                     break;
                 }
                 case TERMINATED: {

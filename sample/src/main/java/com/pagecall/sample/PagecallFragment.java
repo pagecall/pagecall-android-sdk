@@ -97,13 +97,6 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
         webView.onActivityResult(requestCode, resultCode, intent);
     }
 
-    public boolean processKeyDown(int keyCode, KeyEvent event) {
-        if (webView.handleVolumeKeys(keyCode, event)) {
-            return true;
-        }
-        return false;
-    }
-
     // PagecallWebView.Listener implementations
     @Override
     public void onLoadStateChange(String message) {
