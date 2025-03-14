@@ -202,6 +202,7 @@ final public class PagecallWebView extends WebView {
         if (bluetoothDevice != null) {
             audioManager.startBluetoothSco();
             audioManager.setBluetoothScoOn(true);
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 audioManager.setCommunicationDevice(bluetoothDevice);
             }
@@ -223,6 +224,7 @@ final public class PagecallWebView extends WebView {
         }
         if (externalDevice != null) {
             audioManager.setSpeakerphoneOn(false);
+            audioManager.setMode(AudioManager.MODE_NORMAL); // Using MODE_IN_COMMUNICATION routes to builtin speaker in Android 10
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 audioManager.setCommunicationDevice(externalDevice);
             }
@@ -235,6 +237,7 @@ final public class PagecallWebView extends WebView {
         // 3. Builtin
         AudioDeviceInfo builtinDevice = devices.get(0);
         audioManager.setSpeakerphoneOn(true);
+        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             audioManager.clearCommunicationDevice();
         }
@@ -272,7 +275,6 @@ final public class PagecallWebView extends WebView {
 
 
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         audioManager.registerAudioDeviceCallback(audioDeviceCallback, null);
 
         if (nativeBridge == null) nativeBridge = new NativeBridge(this, subscribers);
@@ -480,8 +482,9 @@ final public class PagecallWebView extends WebView {
         destroyBridge();
 
         AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.stopBluetoothSco();
         audioManager.unregisterAudioDeviceCallback(audioDeviceCallback);
+        audioManager.stopBluetoothSco();
+        audioManager.setMode(AudioManager.MODE_NORMAL);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             audioManager.clearCommunicationDevice();
         }
