@@ -1,10 +1,12 @@
 package com.pagecall.sample;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -26,7 +28,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
-public class PagecallFragment extends Fragment implements PagecallWebView.Listener {
+public class PagecallFragment extends DialogFragment implements PagecallWebView.Listener {
     private PagecallWebView webView;
     private FrameLayout webViewContainer;
 
@@ -56,8 +58,8 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
         webView = new PagecallWebView(view.getContext());
         webView.setListener(this);
         webView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+                1200,
+                2000));
         webViewContainer.addView(webView);
 
         PagecallFragmentArgs args = PagecallFragmentArgs.fromBundle(getArguments());
@@ -82,6 +84,15 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
         } else {
             webView.load(roomId, accessToken, PagecallWebView.PagecallMode.fromString(mode));
         }
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        }
+        return dialog;
     }
 
     @Override

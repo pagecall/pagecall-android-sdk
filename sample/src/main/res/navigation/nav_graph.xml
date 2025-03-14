@@ -14,7 +14,7 @@
             android:id="@+id/action_homeFragment_to_pagecallFragment"
             app:destination="@id/pagecallFragment" />
     </fragment>
-    <fragment
+    <dialog
         android:id="@+id/pagecallFragment"
         android:name="com.pagecall.sample.PagecallFragment"
         android:label="fragment_pagecall"
@@ -38,5 +38,5 @@
             android:name="query"
             app:argType="string"
             app:nullable="true" />
-    </fragment>
+    </dialog>
 </navigation>
