@@ -221,7 +221,6 @@ class NativeBridge {
         final Consumer<Exception> respondEmpty = (error) -> {
             respond.accept(error, null);
         };
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 
         try {
             switch (bridgeAction) {
@@ -229,11 +228,6 @@ class NativeBridge {
                     this.loaded = true;
                     return;
                 case INITIALIZE:
-                    if (audioManager != null) {
-                        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-                    } else {
-                        respondEmpty.accept(new PagecallError("Missing audioManager"));
-                    }
                     if (mediaController != null) {
                         respondObject.accept(new PagecallError("Must be disposed first"), null);
                         return;
@@ -253,30 +247,27 @@ class NativeBridge {
                     return;
 
                 case GET_AUDIO_DEVICES:
-                    if (this.mediaController instanceof MediaInfraController) {
-                        if (audioManager != null) {
-                            AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
-                            AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
-                            AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
-                            System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
-                            System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
-
-                            MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
-
-                            /**
-                             * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
-                             * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
-                             * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
-                             */
-                            MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
-
-                            respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
-                        } else {
-                            respondEmpty.accept(new PagecallError("Missing audioManager"));
-                        }
-                    } else {
-                        respondEmpty.accept(new PagecallError("MediaController is not initialized yet."));
+                    AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+                    if (audioManager == null) {
+                        respondEmpty.accept(new PagecallError("Missing audioManager"));
+                        return;
                     }
+                    AudioDeviceInfo[] audioInputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+                    AudioDeviceInfo[] audioOutputDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+                    AudioDeviceInfo[] audioDevices = new AudioDeviceInfo[audioInputDevices.length + audioOutputDevices.length];
+                    System.arraycopy(audioInputDevices, 0, audioDevices, 0, audioInputDevices.length);
+                    System.arraycopy(audioOutputDevices, 0, audioDevices, audioInputDevices.length, audioOutputDevices.length);
+
+                    MediaDeviceInfo[] deviceList = MediaDeviceInfo.convertToMediaDeviceInfo(audioDevices);
+
+                    /**
+                     * 코어앱에서 불필요하게 디바이스를 많이 보여주지않기 위해 input 중 하나만 넘겨줌.
+                     * SET_AUDIO_DEVICE를 하지 않기 때문에 괜찮다.
+                     * TODO: SET_AUDIO_DEVICE를 하게 되면 알맞게 전달해야함.
+                     */
+                    MediaDeviceInfo[] pickedDeviceList = MediaDeviceInfo.pickOneInput(deviceList);
+
+                    respondArray.accept(null, MediaDeviceInfo.convertToJSONArray(pickedDeviceList));
                     return;
 
                 case GET_MEDIA_STATS:
