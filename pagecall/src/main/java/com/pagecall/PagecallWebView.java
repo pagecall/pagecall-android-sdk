@@ -47,6 +47,7 @@ final public class PagecallWebView extends WebView {
         default void onEvent(JSONObject payload) {};
         default void onTerminated(TerminationReason reason) {};
         default void onError(PagecallError error) {};
+        default void onWillNavigate(String url) {};
     }
 
     public enum PagecallMode {
@@ -313,6 +314,16 @@ final public class PagecallWebView extends WebView {
         this.addJavascriptInterface(nativeBridge, jsInterfaceName);
 
         super.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Log.d("PagecallWebView", "shouldOverrideUrlLoading: " + request.getUrl().toString());
+                if (request.isForMainFrame() && listener != null) {
+                    listener.onWillNavigate(request.getUrl().toString());
+                }
+                return super.shouldOverrideUrlLoading(view, request);
+            }
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
