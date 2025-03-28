@@ -118,6 +118,11 @@ public class PagecallFragment extends Fragment implements PagecallWebView.Listen
     }
 
     @Override
+    public void onWillNavigate(String url) {
+        Log.d("SampleApp", "WillNavigate: " + url);
+    }
+
+    @Override
     public void onTerminated(TerminationReason reason) {
         if (reason == TerminationReason.INTERNAL) {
             Log.d("SampleApp", "Terminated with internal reason");
