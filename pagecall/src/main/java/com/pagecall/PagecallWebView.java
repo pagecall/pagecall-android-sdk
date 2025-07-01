@@ -289,6 +289,8 @@ final public class PagecallWebView extends WebView {
             switch (bridgeAction) {
                 case LOADED: {
                     this.listener.onLoaded();
+                    this.nativeBridge.log("initialDevice", "Triggering updateCommunicationDevice to log initial device");
+                    updateCommunicationDevice();
                     break;
                 }
                 case TERMINATED: {
