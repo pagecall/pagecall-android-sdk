@@ -234,7 +234,6 @@ class NativeBridge {
                     }
                     MediaInfraController.MiInitialPayload initialPayload = new MediaInfraController.MiInitialPayload(payloadData);
                     this.mediaController = new MediaInfraController(emitter, initialPayload, context);
-                    this.synchronizePauseState();
                     respondEmpty.accept(null);
                     return;
                 case GET_PERMISSIONS:
