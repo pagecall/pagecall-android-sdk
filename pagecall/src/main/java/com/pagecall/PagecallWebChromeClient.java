@@ -46,7 +46,7 @@ public class PagecallWebChromeClient extends WebChromeClient {
         chooserIntent.putExtra(Intent.EXTRA_INTENT, fileSelectionIntent);
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
 
-        ((Activity) this.webView.getContext()).startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
+        this.webView.startActivityForResult(chooserIntent, IMAGE_SELECTOR_REQ);
 
         return true;
     }
