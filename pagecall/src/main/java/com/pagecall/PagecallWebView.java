@@ -380,6 +380,21 @@ final public class PagecallWebView extends WebView {
         super.setWebChromeClient(this.webChromeClient);
     }
 
+    public void startActivityForResult(Intent intent, int requestCode) {
+        Context context = getContext();
+        if (context instanceof Activity) {
+            ((Activity) context).startActivityForResult(intent, requestCode);
+            return;
+        } else if (context instanceof MutableContextWrapper) {
+            Context baseContext = ((MutableContextWrapper) context).getBaseContext();
+            if (baseContext instanceof Activity) {
+                ((Activity) baseContext).startActivityForResult(intent, requestCode);
+                return;
+            }
+        }
+        Log.e("PagecallWebView", "activity cannot be started due to Unexpected context");
+    }
+
     public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
         if (this.webChromeClient != null) {
             this.webChromeClient.handleActivityResult(requestCode, resultCode, intent);
