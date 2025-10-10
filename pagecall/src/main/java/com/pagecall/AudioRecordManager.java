@@ -96,7 +96,7 @@ class AudioRecordManager {
      */
     static void startEmitVolumeSchedule(@NonNull Context context, @NonNull WebViewEmitter emitter) {
         if (volumeEmitter == null) volumeEmitter = Executors.newSingleThreadScheduledExecutor();
-        volumeEmitter.scheduleAtFixedRate(
+        volumeEmitter.scheduleWithFixedDelay(
                 () -> {
                     double volume = getMicrophoneVolume(context);
                     if (volume < 0) return;

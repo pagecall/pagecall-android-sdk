@@ -23,18 +23,18 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 class NativeBridge {
-    private PagecallWebView pagecallWebView;
+    private final PagecallWebView pagecallWebView;
     private MediaController mediaController;
-    private Context context;
-    private WebViewEmitter emitter;
+    private final Context context;
+    private final WebViewEmitter emitter;
 
-    private HashMap<String, Consumer<String>> subscribers;
+    private final HashMap<String, Consumer<String>> subscribers;
 
     private Boolean isAudioPaused = false;
 
     public Boolean loaded = false;
 
-    private ArrayList<Consumer<JSONObject>> bridgeMessageConsumers = new ArrayList();
+    private final ArrayList<Consumer<JSONObject>> bridgeMessageConsumers = new ArrayList();
 
     public void listenBridgeMessages(Consumer<JSONObject> listener) {
         this.bridgeMessageConsumers.add(listener);
@@ -192,18 +192,9 @@ class NativeBridge {
 
         final BiConsumer<Exception, String> respond = (error, data) -> {
             if (error != null) {
-                if (requestId != null) {
-                    emitter.responseError(requestId, error.getLocalizedMessage());
-                } else {
-                    emitter.error("RequestFailed", error.getLocalizedMessage());
-                }
+                emitter.responseError(requestId, error.getLocalizedMessage());
             } else {
-                if (requestId != null) {
-                    emitter.response(requestId, data);
-                } else {
-                    System.out.println("Missing requestId");
-                    emitter.error("RequestIdMissing", action + " succeeded without requestId");
-                }
+                emitter.response(requestId, data);
             }
         };
         final BiConsumer<Exception, JSONObject> respondObject = (error, data) -> {
