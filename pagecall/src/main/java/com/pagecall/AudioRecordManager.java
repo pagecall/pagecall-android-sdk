@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
  */
 class AudioRecordManager {
     private static AudioRecord audioRecord;
-    private static ScheduledExecutorService volumeEmitter;
 
     private static int bufferSize;
     private static short[] buffer;
@@ -80,40 +79,12 @@ class AudioRecordManager {
      * returns volume in 0 ~ 1
      *
      * @param context Android Context
-     * @return -1 if permission is not granted or it failed to get the volume
      */
     static double getMicrophoneVolume(@NonNull Context context) {
         double amplitude = getMicrophoneAmplitude(context);
         if (amplitude < 0) return amplitude;
         double volume = (amplitude - AMPLITUDE_IDLE) / AMPLITUDE_MAX;
         return Math.max(0, Math.min(1, volume));
-    }
-
-    /**
-     * emit microphone decibel every second
-     * @param context Android Context
-     * @param emitter
-     */
-    static void startEmitVolumeSchedule(@NonNull Context context, @NonNull WebViewEmitter emitter) {
-        if (volumeEmitter == null) volumeEmitter = Executors.newSingleThreadScheduledExecutor();
-        volumeEmitter.scheduleWithFixedDelay(
-                () -> {
-                    double volume = getMicrophoneVolume(context);
-                    if (volume < 0) return;
-                    emitter.emit(NativeBridgeEvent.AUDIO_VOLUME, Double.toString(volume));
-                },
-                0,
-                500,
-                TimeUnit.MILLISECONDS
-        );
-    }
-
-
-    static void shutdownSchedule() {
-        if (volumeEmitter != null) {
-            volumeEmitter.shutdown();
-            volumeEmitter = null;
-        }
     }
 
     static void dispose() {
@@ -128,6 +99,5 @@ class AudioRecordManager {
             audioRecord.release();
             audioRecord = null;
         }
-        shutdownSchedule();
     }
 }
