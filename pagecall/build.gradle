@@ -30,6 +30,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -38,7 +39,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     api 'com.google.code.gson:gson:2.8.9'
-    api 'io.github.haiyangwu:mediasoup-client:3.4.0'
+    api 'com.pagecall:mediasoup-client-android:3.4.0'
 }
 
 ext {
@@ -117,7 +118,7 @@ publishing {
             url = uri("https://maven.pkg.github.com/$GITHUB_USER/$GITHUB_REPO")
             credentials {
                 username = GITHUB_USER
-                password = System.getenv("GITHUB_TOKEN") 
+                password = System.getenv("GITHUB_TOKEN")
             }
         }
     }
