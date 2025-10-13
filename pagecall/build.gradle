@@ -46,7 +46,7 @@ ext {
     GITHUB_USER = "pagecall"
     GITHUB_REPO = "pagecall-android-sdk"
     GITHUB_PKG_NAME = "pagecall-android-sdk"
-    GITHUB_PKG_VERSION = "0.0.51"
+    GITHUB_PKG_VERSION = "0.0.52"
 }
 
 publishing {
