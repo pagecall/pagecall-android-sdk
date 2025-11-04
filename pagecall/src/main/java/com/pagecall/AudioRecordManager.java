@@ -26,8 +26,8 @@ class AudioRecordManager {
 
     private static final int SAMPLE_RATE = 8000;
 
-    private static final double AMPLITUDE_IDLE = 50.0;
-    private static final double AMPLITUDE_MAX = 1000.0;
+    private static final double AMPLITUDE_IDLE = 1000.0;
+    private static final double AMPLITUDE_MAX = 10000.0;
 
     /**
      * Checks Permission, computes and returns amplitude in 0 ~ 10000
@@ -46,7 +46,7 @@ class AudioRecordManager {
             bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
             if (bufferSize != AudioRecord.ERROR_BAD_VALUE && bufferSize != AudioRecord.ERROR) {
                 buffer = new short[bufferSize];
-                audioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+                audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
             }
         }
 
